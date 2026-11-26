@@ -2,25 +2,27 @@
 
 This repository brings the Cybersecurity and Data Engineering & MLOps learning experiences together in one browser-based platform. The project blueprint and planning documents are in [`docs/README.md`](docs/README.md).
 
-## Repository structure
+## Run the real website locally
 
-- `app/` - Unified website and its content-generation/verification scripts
-- `app/dist/` - Browser-ready static website
-- `source/` - Preserved Data Engineering & MLOps source project
-- `docs/` - Product plans and technical documents
+The Next.js site in `web/` is the application entry point. It includes Supabase email/password sign-in, account creation, password recovery, and a protected learner dashboard. The older static prototype in `app/dist/` still uses browser-only demo accounts; use it only to review the prototype.
 
-## Run locally
+Prerequisites: Node.js, npm, and Docker Desktop for the local Supabase service.
 
-From the repository root:
-
-```sh
-python3 -m http.server 4173 --bind 127.0.0.1 --directory app/dist
+```powershell
+npm install
+Copy-Item .env.example .env.local
+npx supabase start
+npx supabase db reset
+npm run dev
 ```
 
-Open `http://127.0.0.1:4173`.
+When Supabase starts, copy its API URL and `anon` key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`. Then open [http://localhost:3000/login](http://localhost:3000/login). Keep `.env.local` private; it is ignored by Git. For hosted Supabase setup and OAuth redirect configuration, see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md).
 
-The current website is a static learning prototype. Authentication and progress are demo-only and stored in the browser; this is not the production server-side account, payment, or entitlement architecture described in the planning documents.
+## Repository structure
 
-## Backend foundation
-
-The Supabase V1 foundation lives alongside the unchanged prototype: `supabase/` contains local configuration, migrations, RLS, private storage rules, and the coupon redemption Edge Function; `web/` contains the Next.js server/client integration scaffold; `prisma/` contains the typed ORM schema. See [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md) for setup and the handoff contract. The login screen has not been redesigned; the frontend can apply the supplied design reference when it is ready.
+- `web/` - Next.js website, real Supabase authentication, and learner dashboard
+- `supabase/` - Database migrations, row-level security, storage rules, and Edge Functions
+- `prisma/` - Typed ORM schema for trusted server-side code
+- `app/dist/` - Older static prototype with demo-only authentication
+- `source/` - Preserved Data Engineering & MLOps source project
+- `docs/` - Product plans and technical setup
