@@ -28,7 +28,8 @@ export default async function DashboardPage() {
         <div className="auth-card">
           <p className="welcome-line">NXGENVARSITY × PRERANA</p>
           <h1 className="dashboard-title">Welcome{user.user_metadata.full_name ? `, ${user.user_metadata.full_name}` : ""}.</h1>
-          <p className="card-subtitle">You’re signed in as {user.email}. Your learning dashboard will appear here.</p>
+          <p className="card-subtitle">You’re signed in as {user.email}. Your Cybersecurity and Data Engineering &amp; MLOps learning studio is ready.</p>
+          <a className="primary-submit" href="/studio/">Open the learning studio <span aria-hidden="true">→</span></a>
           <div className="wallet-summary">
             <span className="wallet-coin" aria-hidden="true">✦</span>
             <div>
