@@ -1,0 +1,7 @@
+.openai/local/
+.openai/*.tmp
+.openai/*credential*
+node_modules/
+tmp/
+output/
+.DS_Store

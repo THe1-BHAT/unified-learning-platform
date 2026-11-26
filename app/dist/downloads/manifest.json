@@ -1,0 +1,34 @@
+[
+  {
+    "id": "cybersecurity-learning-career-roadmap",
+    "title": "Cybersecurity Learning & Career Roadmap",
+    "description": "A focused 12-week plan, career comparisons, and a portfolio checklist for engineering students.",
+    "pages": 5,
+    "url": "downloads/cybersecurity-learning-career-roadmap.pdf",
+    "size": 1216468
+  },
+  {
+    "id": "safe-cyber-lab-starter-workbook",
+    "title": "Safe Cyber Lab Starter Workbook",
+    "description": "Plan an isolated training environment and complete ten evidence-based beginner challenges.",
+    "pages": 5,
+    "url": "downloads/safe-cyber-lab-starter-workbook.pdf",
+    "size": 1215801
+  },
+  {
+    "id": "soc-investigation-workbook",
+    "title": "SOC Investigation Workbook",
+    "description": "Investigate a synthetic sign-in case, build a timeline, and produce a concise analyst handover.",
+    "pages": 5,
+    "url": "downloads/soc-investigation-workbook.pdf",
+    "size": 1215634
+  },
+  {
+    "id": "web-security-project-playbook",
+    "title": "Web Security Project Playbook",
+    "description": "A scoped testing method, prevention-first weakness map, and a reusable finding-report template.",
+    "pages": 5,
+    "url": "downloads/web-security-project-playbook.pdf",
+    "size": 1215400
+  }
+]

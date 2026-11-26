@@ -1,0 +1,302 @@
+[
+  {
+    "id": "guide",
+    "title": "Your Data Engineering & MLOps roadmap",
+    "type": "Course guide",
+    "format": "PDF",
+    "desc": "A flexible learning map, study approach and practical project milestones.",
+    "url": "resources/course-guide.pdf",
+    "document": "guide"
+  },
+  {
+    "id": "study",
+    "title": "The complete study companion",
+    "type": "Study notes",
+    "format": "PDF",
+    "desc": "Twenty focused lessons with worked examples, reflection prompts and a concise glossary.",
+    "url": "resources/study-companion.pdf",
+    "document": "study"
+  },
+  {
+    "id": "workbook",
+    "title": "Build your MLOps project",
+    "type": "Projects",
+    "format": "PDF",
+    "desc": "Plan a pipeline and evaluate an MLOps tool with step-by-step worksheets.",
+    "url": "resources/project-workbook.pdf",
+    "document": "workbook"
+  },
+  {
+    "id": "quizbook",
+    "title": "50 questions to connect the ideas",
+    "type": "Practice",
+    "format": "PDF",
+    "desc": "Ten questions per module with a complete explained answer key for offline revision.",
+    "url": "resources/quiz-workbook.pdf",
+    "document": "quizbook"
+  },
+  {
+    "id": "etl",
+    "title": "ETL vs ELT: Powering Data Pipelines for AI & Analytics",
+    "type": "Video",
+    "format": "VIDEO",
+    "desc": "Compare when transformation happens and how that affects your pipeline design.",
+    "url": "https://www.youtube.com/watch?v=KIv2Na2-u24",
+    "video": "KIv2Na2-u24",
+    "creator": "IBM Technology",
+    "module": 1,
+    "prompt": "What would make you transform data before loading it?"
+  },
+  {
+    "id": "lake",
+    "title": "What is a Data Lake?",
+    "type": "Video",
+    "format": "VIDEO",
+    "desc": "Explore a data-lake architecture and how raw data becomes useful for analysis.",
+    "url": "https://www.youtube.com/watch?v=LxcH6z8TFpI",
+    "video": "LxcH6z8TFpI",
+    "creator": "IBM Technology",
+    "module": 2,
+    "prompt": "What metadata and quality controls would keep your lake usable?"
+  },
+  {
+    "id": "micro",
+    "title": "What are Microservices?",
+    "type": "Video",
+    "format": "VIDEO",
+    "desc": "Compare a service-based architecture with a traditional monolith.",
+    "url": "https://www.youtube.com/watch?v=CdBtNQZH8a4",
+    "video": "CdBtNQZH8a4",
+    "creator": "IBM Technology",
+    "module": 2,
+    "prompt": "Which boundary could your team own and deploy independently?"
+  },
+  {
+    "id": "mlops",
+    "title": "What is MLOps?",
+    "type": "Video",
+    "format": "VIDEO",
+    "desc": "Connect model development with automation and operations.",
+    "url": "https://www.youtube.com/watch?v=OejCJL2EC3k",
+    "video": "OejCJL2EC3k",
+    "creator": "IBM Technology",
+    "module": 3,
+    "prompt": "Which risks remain after a model has been trained successfully?"
+  },
+  {
+    "id": "cloud",
+    "title": "An introduction to MLOps on Google Cloud",
+    "type": "Video",
+    "format": "VIDEO",
+    "desc": "See a production ML lifecycle through a cloud-platform example.",
+    "url": "https://www.youtube.com/watch?v=6gdrwFMaEZ0",
+    "video": "6gdrwFMaEZ0",
+    "creator": "Google Cloud Tech",
+    "module": 4,
+    "prompt": "Which parts of this lifecycle apply even if you use a different platform?"
+  },
+  {
+    "id": "tracking",
+    "title": "MLflow 3.0: AI and MLOps on Databricks",
+    "type": "Video",
+    "format": "VIDEO",
+    "desc": "Explore experiment tracking, model lifecycle management and deployment workflows.",
+    "url": "https://www.youtube.com/watch?v=UezTglxJC88",
+    "video": "UezTglxJC88",
+    "creator": "Databricks",
+    "module": 3,
+    "prompt": "What evidence would you retain to compare two candidate models?"
+  },
+  {
+    "id": "best",
+    "title": "MLOps Best Practices on Google Cloud",
+    "type": "Video",
+    "format": "VIDEO",
+    "desc": "A conference session linked from Google Cloud’s MLOps architecture guide.",
+    "url": "https://www.youtube.com/watch?v=20h_RTHEtZI",
+    "video": "20h_RTHEtZI",
+    "creator": "Google Cloud Tech",
+    "module": 4,
+    "prompt": "Where would you place validation and promotion gates in your own design?"
+  },
+  {
+    "id": "governance",
+    "title": "Data Governance Explained in 5 Minutes",
+    "type": "Video",
+    "format": "VIDEO",
+    "desc": "Connect data ownership, access and governance with reliable use.",
+    "url": "https://www.youtube.com/watch?v=uPsUjKLHLAg",
+    "video": "uPsUjKLHLAg",
+    "creator": "IBM Technology",
+    "module": 5,
+    "prompt": "Who owns each dataset and model decision in your project?"
+  },
+  {
+    "id": "data-brief",
+    "title": "What makes data useful?",
+    "type": "Reading",
+    "format": "STUDY BRIEF",
+    "desc": "Read an original study brief in the studio, then explore the source for more detail.",
+    "creator": "IBM",
+    "url": "https://www.ibm.com/think/topics/data-engineering",
+    "module": 1,
+    "sections": [
+      {
+        "title": "Start with the consumer",
+        "body": "A pipeline is useful when people can rely on its outputs for a decision. Define the required dataset, its meaning and the time by which it should arrive before choosing tools."
+      },
+      {
+        "title": "Think across stages",
+        "body": "Source collection, transformation and serving are connected. A clean transformation cannot rescue an incorrectly defined source or an output nobody understands. Record lineage and ownership through the flow."
+      },
+      {
+        "title": "Try it",
+        "body": "Choose a daily sales report. Write its freshness target, key fields and the person who resolves a failed delivery."
+      }
+    ]
+  },
+  {
+    "id": "architecture",
+    "title": "Service boundaries and trade-offs",
+    "type": "Reading",
+    "format": "STUDY BRIEF",
+    "desc": "Read an original study brief in the studio, then explore the source for more detail.",
+    "creator": "James Lewis & Martin Fowler",
+    "url": "https://martinfowler.com/articles/microservices.html",
+    "module": 2,
+    "sections": [
+      {
+        "title": "A boundary is a commitment",
+        "body": "A service should have a clear purpose and interface. Independence is useful only when a team can build, release and operate the component responsibly."
+      },
+      {
+        "title": "Count the costs",
+        "body": "Network calls, partial failures, debugging and cross-service data consistency add work. Compare those costs with the value of independent changes and scaling."
+      },
+      {
+        "title": "Try it",
+        "body": "Draw two components for a retailer and identify the interface between them. Explain one failure that should not stop the other component."
+      }
+    ]
+  },
+  {
+    "id": "airflow",
+    "title": "Orchestration as a dependency graph",
+    "type": "Reading",
+    "format": "STUDY BRIEF",
+    "desc": "Read an original study brief in the studio, then explore the source for more detail.",
+    "creator": "Apache Airflow",
+    "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/overview.html",
+    "module": 2,
+    "sections": [
+      {
+        "title": "Describe the dependencies",
+        "body": "A workflow graph records which tasks must finish before others begin. For example, validate an ingested partition before publishing the transformed table."
+      },
+      {
+        "title": "Task success is not data correctness",
+        "body": "An orchestrator tracks execution, but your tasks must check the data they publish. Retries also need safe write behavior to avoid duplicated output."
+      },
+      {
+        "title": "Try it",
+        "body": "Draw extract, validate, transform and publish as a directed acyclic graph. Add the action to take when validation fails."
+      }
+    ]
+  },
+  {
+    "id": "tracking-brief",
+    "title": "A useful experiment record",
+    "type": "Reading",
+    "format": "STUDY BRIEF",
+    "desc": "Read an original study brief in the studio, then explore the source for more detail.",
+    "creator": "MLflow",
+    "url": "https://www.mlflow.org/docs/latest/tracking/",
+    "module": 3,
+    "sections": [
+      {
+        "title": "Connect inputs and evidence",
+        "body": "Record the code and data identifiers, environment, configuration, evaluation metrics and output files for each run. Use consistent naming so comparisons answer a clear question."
+      },
+      {
+        "title": "Separate the record types",
+        "body": "Parameters describe settings. Metrics hold measurements. Artifacts preserve files such as plots or models. Tracking helps review an experiment; it does not prove the experiment was designed correctly."
+      },
+      {
+        "title": "Try it",
+        "body": "Specify two runs that change one parameter while keeping the evaluation split fixed. Name the metric and artifacts you would compare."
+      }
+    ]
+  },
+  {
+    "id": "leakage",
+    "title": "Keep evaluation data out of training decisions",
+    "type": "Reading",
+    "format": "STUDY BRIEF",
+    "desc": "Read an original study brief in the studio, then explore the source for more detail.",
+    "creator": "scikit-learn",
+    "url": "https://scikit-learn.org/stable/common_pitfalls.html",
+    "module": 3,
+    "sections": [
+      {
+        "title": "Split before learning transformations",
+        "body": "Learn scaling or imputation statistics from the training data. Apply those learned operations to held-out data without fitting them again."
+      },
+      {
+        "title": "Check prediction-time availability",
+        "body": "A field can be accurate and still leak the future. Exclude information recorded after the point where the real system must make a prediction."
+      },
+      {
+        "title": "Try it",
+        "body": "For a churn model, compare last month’s usage with a cancellation date recorded after the prediction. Explain which field leaks the outcome."
+      }
+    ]
+  },
+  {
+    "id": "delivery",
+    "title": "Build a delivery loop for ML",
+    "type": "Reading",
+    "format": "STUDY BRIEF",
+    "desc": "Read an original study brief in the studio, then explore the source for more detail.",
+    "creator": "Google Cloud",
+    "url": "https://docs.cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning",
+    "module": 4,
+    "sections": [
+      {
+        "title": "Automate a tested path",
+        "body": "Connect changes to repeatable checks, training, evaluation and artifact creation. Keep evidence for the candidate that passes the gates."
+      },
+      {
+        "title": "Distinguish the loops",
+        "body": "Software delivery changes the implementation. Retraining updates a model with data. Both require validation, traceability and an appropriate promotion decision."
+      },
+      {
+        "title": "Try it",
+        "body": "Sketch a path from a code commit to a staged model, then draw a separate retraining trigger that reuses the same evaluation gate."
+      }
+    ]
+  },
+  {
+    "id": "monitoring",
+    "title": "Investigate a drift signal",
+    "type": "Reading",
+    "format": "STUDY BRIEF",
+    "desc": "Read an original study brief in the studio, then explore the source for more detail.",
+    "creator": "Google Cloud",
+    "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/model-monitoring/overview",
+    "module": 5,
+    "sections": [
+      {
+        "title": "Name the reference",
+        "body": "A distribution comparison only makes sense against a documented baseline and observation window. Track changes in inputs separately from confirmed changes in outcomes."
+      },
+      {
+        "title": "Investigate before retraining",
+        "body": "A broken data transformation and a changing user population can both shift input statistics. Check quality and context, then use outcome evidence when available."
+      },
+      {
+        "title": "Try it",
+        "body": "Write a missing-value alert with an owner, first diagnostic step and follow-up metric. Decide what evidence would justify retraining."
+      }
+    ]
+  }
+]

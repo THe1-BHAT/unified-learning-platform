@@ -1,0 +1,1045 @@
+[
+  {
+    "id": 1,
+    "title": "Think like a data engineer",
+    "name": "Data engineering foundations",
+    "outcome": "Foundations",
+    "color": "sage",
+    "description": "Understand the people, systems and lifecycle behind useful data.",
+    "chapters": "Fundamentals of Data Engineering · Chapters 1–2",
+    "lessons": [
+      {
+        "id": "m1l1",
+        "title": "The data engineering landscape",
+        "objective": "Define data engineering and distinguish engineering responsibilities from data science.",
+        "sections": [
+          {
+            "title": "The core idea",
+            "body": "Data engineering designs, builds and operates systems that turn raw data into reliable, usable data. Data science often uses that data for analysis and prediction; engineering makes the inputs accessible and dependable."
+          },
+          {
+            "title": "Roles change with context",
+            "body": "A small team may need one generalist to own ingestion, storage and analytics. A larger organization may separate platform, analytics and infrastructure responsibilities. Data maturity describes how consistently an organization manages and uses its data."
+          },
+          {
+            "title": "Business meets engineering",
+            "body": "Clarify the decision the data will support, who owns it and when it must arrive. Technical responsibilities include modeling, orchestration, quality, security and operations. A technically impressive pipeline has little value if it misses the business need."
+          }
+        ],
+        "activity": "Choose a campus use case. List its data producers, consumers and one business question."
+      },
+      {
+        "id": "m1l2",
+        "title": "Follow the data lifecycle",
+        "objective": "Trace data from generation to serving and identify lifecycle undercurrents.",
+        "sections": [
+          {
+            "title": "From source to use",
+            "body": "Operational applications, devices and external services generate data. Engineers ingest it, choose suitable storage, transform it and serve it to downstream consumers. The wider data lifecycle also includes retention and eventual deletion."
+          },
+          {
+            "title": "Batch or continuous",
+            "body": "A daily enrollment report can use scheduled batch ingestion. A live service may need streaming updates. Select the arrival pattern from latency and correctness needs rather than tool popularity."
+          },
+          {
+            "title": "The undercurrents",
+            "body": "Security, data management, DataOps, architecture, orchestration and software engineering span the lifecycle. For example, a change to a source schema can require updates to contracts, tests, permissions and downstream models."
+          }
+        ],
+        "activity": "Draw a source → ingestion → storage → transformation → serving flow. Add quality and ownership checkpoints."
+      },
+      {
+        "id": "m1l3",
+        "title": "Skills, ownership and trade-offs",
+        "objective": "Connect team maturity and responsibilities with practical engineering choices.",
+        "sections": [
+          {
+            "title": "Start with responsibility",
+            "body": "For every dataset, identify an owner, consumers, expected freshness and a recovery plan. Ownership helps teams resolve incidents without guessing who should act."
+          },
+          {
+            "title": "Build a balanced skill set",
+            "body": "SQL, programming and data modeling support implementation. Communication, requirements analysis and prioritization connect those skills to business needs. Operational habits make the system dependable over time."
+          },
+          {
+            "title": "Assess maturity",
+            "body": "A team using manual exports needs different improvements from a team operating governed, automated pipelines. Choose the next reliable step and document the trade-off."
+          }
+        ],
+        "activity": "Write a dataset contract with its owner, schema, freshness expectation and failure response."
+      },
+      {
+        "id": "m1l4",
+        "title": "SQL checks, contracts & safe retries",
+        "objective": "Turn quality expectations into checks that a pipeline can run.",
+        "sections": [
+          {
+            "title": "Specify the contract",
+            "body": "For an orders table, define order_id as a unique non-null key, amount as a non-negative number and event_time as a timestamp. Record the source owner, freshness target and the action to take when a rule fails. A schema check alone cannot tell you whether the values are meaningful."
+          },
+          {
+            "title": "Inspect before publishing",
+            "body": "Count rows, null keys and duplicate keys before loading the serving table. Compare the row count with a sensible reference window. Quarantine unexpected records for investigation rather than silently discarding them. The thresholds below are illustrative; choose them from your business requirements."
+          },
+          {
+            "title": "Make retries safe",
+            "body": "A retry may read the same batch twice. Use stable event identifiers and an idempotent merge so the second attempt does not duplicate orders. Store the input partition and completion status, then make backfills explicit. A successful task should mean the expected data was published, not just that a script exited."
+          }
+        ],
+        "activity": "Write three SQL checks for an orders dataset, then explain how your load avoids duplicates when the job retries.",
+        "code": "SELECT order_id, COUNT(*) AS copies\nFROM orders\nGROUP BY order_id\nHAVING COUNT(*) > 1;\n\nSELECT COUNT(*) AS missing_keys\nFROM orders\nWHERE order_id IS NULL;",
+        "codeCaption": "Illustrative SQL: a duplicate-key query should return no rows before promotion."
+      }
+    ],
+    "quizzes": [
+      {
+        "question": "Which concern spans the entire data engineering lifecycle?",
+        "options": [
+          "Security and data management",
+          "Only chart design",
+          "Only model tuning"
+        ],
+        "answer": 0,
+        "explanation": "Security and data management affect every stage, from source access to serving and retention.",
+        "id": "m1q1"
+      },
+      {
+        "question": "Which role most directly owns a dependable ingestion and transformation system?",
+        "options": [
+          "Data engineer",
+          "Only a graphic designer",
+          "Only the model end user"
+        ],
+        "answer": 0,
+        "explanation": "Data engineers build and operate systems that make data reliably available to consumers.",
+        "id": "m1q2"
+      },
+      {
+        "question": "A daily report arrives late even though its rows are correct. Which quality concern failed?",
+        "options": [
+          "Uniqueness",
+          "Freshness",
+          "Encoding"
+        ],
+        "answer": 1,
+        "explanation": "Freshness concerns whether data is available within the time window required by its consumers.",
+        "id": "m1q3"
+      },
+      {
+        "question": "A source sends the same batch twice after a timeout. What helps prevent duplicate output?",
+        "options": [
+          "A random output filename each time",
+          "An idempotent load using stable keys",
+          "Deleting every historical record"
+        ],
+        "answer": 1,
+        "explanation": "Stable identifiers and idempotent operations let a retry produce the same intended result.",
+        "id": "m1q4"
+      },
+      {
+        "question": "Which is a business responsibility of a data engineer?",
+        "options": [
+          "Clarifying which decision the data should support",
+          "Choosing tools without requirements",
+          "Ignoring downstream consumers"
+        ],
+        "answer": 0,
+        "explanation": "Business context connects technical work to a useful outcome and defines practical service expectations.",
+        "id": "m1q5"
+      },
+      {
+        "question": "A new column appears upstream. What is the best first response?",
+        "options": [
+          "Automatically treat all values as valid",
+          "Evaluate schema compatibility and downstream expectations",
+          "Disable all tests permanently"
+        ],
+        "answer": 1,
+        "explanation": "A schema change needs to be assessed against contracts and consumers before it is accepted.",
+        "id": "m1q6"
+      },
+      {
+        "question": "Which activity belongs to the wider data lifecycle?",
+        "options": [
+          "Only calculating a model score",
+          "Retention and eventual deletion",
+          "Only building a chart"
+        ],
+        "answer": 1,
+        "explanation": "Data persists beyond transformation and serving; retention and deletion are part of its wider lifecycle.",
+        "id": "m1q7"
+      },
+      {
+        "question": "Which workload is a reasonable starting point for scheduled batch ingestion?",
+        "options": [
+          "A report required once each morning",
+          "A strict sub-second alerting requirement",
+          "Every workload without considering latency"
+        ],
+        "answer": 0,
+        "explanation": "Scheduled batch processing can fit daily reporting when the freshness requirement allows it.",
+        "id": "m1q8"
+      },
+      {
+        "question": "Why document a dataset owner?",
+        "options": [
+          "To avoid writing schemas",
+          "To make responsibility and incident response clear",
+          "To guarantee the data never changes"
+        ],
+        "answer": 1,
+        "explanation": "An owner is accountable for expectations, changes and coordination when issues occur.",
+        "id": "m1q9"
+      },
+      {
+        "question": "A duplicate-key SQL query returns rows. What should happen before publishing?",
+        "options": [
+          "Ignore the result because the script ran",
+          "Investigate or quarantine the duplicates according to the contract",
+          "Declare the dataset unique"
+        ],
+        "answer": 1,
+        "explanation": "The query identifies a contract violation that needs an explicit response before promotion.",
+        "id": "m1q10"
+      }
+    ],
+    "videoIds": [
+      "etl"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Design systems that hold up",
+    "name": "Data architecture & technology",
+    "outcome": "Architecture",
+    "color": "blue",
+    "description": "Make architecture decisions around reliability, coupling and business value.",
+    "chapters": "Fundamentals of Data Engineering · Chapters 3–4",
+    "lessons": [
+      {
+        "id": "m2l1",
+        "title": "Principles of good architecture",
+        "objective": "Connect enterprise goals with data architecture decisions.",
+        "sections": [
+          {
+            "title": "Architecture has a purpose",
+            "body": "Enterprise architecture connects business processes and technology. Data architecture describes how data is collected, stored, transformed and used within that larger system."
+          },
+          {
+            "title": "Design for change",
+            "body": "Prefer clear interfaces, explicit ownership and components that can evolve without forcing every other component to change. Document the assumptions behind each choice."
+          },
+          {
+            "title": "Design for failure",
+            "body": "Distributed components can fail independently. Plan retries, timeouts, idempotent writes and recovery paths. Reliability is a design concern, not only an operations concern."
+          }
+        ],
+        "activity": "Sketch an architecture for attendance analytics. Annotate one failure mode and its recovery path."
+      },
+      {
+        "id": "m2l2",
+        "title": "Coupling, services and scale",
+        "objective": "Compare monoliths, tiers and microservices in a data system.",
+        "sections": [
+          {
+            "title": "Coupling creates obligations",
+            "body": "Tightly coupled components depend on each other's implementation or availability. Loose coupling uses stable interfaces and can reduce the impact of change, but often adds operational complexity."
+          },
+          {
+            "title": "Pick a sensible boundary",
+            "body": "A monolith may be easier for a small team to build and operate. Services allow independent development and scaling when boundaries and ownership are clear. Neither structure is universally best."
+          },
+          {
+            "title": "Scaling is multidimensional",
+            "body": "Consider data volume, request rates, latency and the number of independent teams. Partitioning and asynchronous communication help some workloads but introduce consistency and coordination trade-offs."
+          }
+        ],
+        "activity": "Compare a shared-database monolith with event-connected services using cost, reliability and team effort."
+      },
+      {
+        "id": "m2l3",
+        "title": "Choose technology deliberately",
+        "objective": "Evaluate technology choices using team capability, cost and interoperability.",
+        "sections": [
+          {
+            "title": "Fit before fashion",
+            "body": "Evaluate team size, skills, delivery speed, operational burden and compatibility with existing systems. A tool the team can operate well may outperform a more fashionable alternative."
+          },
+          {
+            "title": "Look beyond the bill",
+            "body": "Total cost of ownership includes development, maintenance, training, data transfer and incident response. Tie spending to the business outcome and expected service levels."
+          },
+          {
+            "title": "Cloud choices",
+            "body": "Hybrid cloud combines local and cloud environments; multicloud uses more than one cloud provider. Both can address constraints but add integration and governance work. Distinguish durable architectural principles from rapidly changing tools."
+          }
+        ],
+        "activity": "Create a decision record comparing two storage options. State assumptions and a condition that would change your decision."
+      },
+      {
+        "id": "m2l4",
+        "title": "Write an architecture decision record",
+        "objective": "Justify a storage and orchestration design with explicit trade-offs.",
+        "sections": [
+          {
+            "title": "State the workload",
+            "body": "A fictional retailer needs a daily sales report by 08:00 and a weekly model-training dataset. Begin with a batch design because the requirement does not call for sub-second data. Record volume, privacy constraints, failure tolerance and expected growth before selecting services."
+          },
+          {
+            "title": "Choose and compare",
+            "body": "Compare an analytical warehouse with files in object storage plus a query engine. Consider schema evolution, query patterns, access control, operational effort and cost. A lake stores varied data; it still needs metadata, quality and lifecycle management to remain usable."
+          },
+          {
+            "title": "Make the decision revisitable",
+            "body": "An architecture decision record captures context, options, decision, consequences and a review trigger. For orchestration, represent extract, validate, transform and publish as tasks with dependencies. Airflow represents workflows as directed acyclic graphs; task retries still require idempotent data operations."
+          }
+        ],
+        "activity": "Write a one-page decision record for the retailer. Include a rejected option, an outage scenario and a trigger for reassessing the design.",
+        "code": "Context: daily report, ready by 08:00\nDecision: scheduled batch ingestion\nQuality gate: schema + keys + freshness\nRecovery: retry the same partition safely\nReview trigger: freshness needs fall below 5 minutes",
+        "codeCaption": "Illustrative architecture decision outline, not a product recommendation."
+      }
+    ],
+    "quizzes": [
+      {
+        "question": "What belongs in total cost of ownership?",
+        "options": [
+          "Only the monthly service invoice",
+          "Development, operations and training as well as service costs",
+          "Only initial setup time"
+        ],
+        "answer": 1,
+        "explanation": "Total cost of ownership accounts for the effort and expense of operating the system over its life.",
+        "id": "m2q1"
+      },
+      {
+        "question": "Why use a stable interface between services?",
+        "options": [
+          "To hide every failure",
+          "To reduce dependence on implementation details",
+          "To remove all coordination"
+        ],
+        "answer": 1,
+        "explanation": "Stable interfaces can reduce coupling, although distributed systems still require coordination and operations.",
+        "id": "m2q2"
+      },
+      {
+        "question": "What should an architecture decision record include?",
+        "options": [
+          "Only the final product name",
+          "Context, alternatives, consequences and a review trigger",
+          "Only the monthly bill"
+        ],
+        "answer": 1,
+        "explanation": "A decision record makes the reasoning and conditions behind an architecture choice reviewable.",
+        "id": "m2q3"
+      },
+      {
+        "question": "What is a practical cost of introducing many microservices?",
+        "options": [
+          "They eliminate all deployment work",
+          "Additional coordination and operational complexity",
+          "They make failures impossible"
+        ],
+        "answer": 1,
+        "explanation": "Service boundaries may enable independence but also introduce network, observability and operational work.",
+        "id": "m2q4"
+      },
+      {
+        "question": "Which design directly acknowledges partial failure?",
+        "options": [
+          "Assuming every network call succeeds",
+          "Timeouts, bounded retries and recovery paths",
+          "Removing error handling"
+        ],
+        "answer": 1,
+        "explanation": "Distributed components may fail independently; designs need explicit behavior for those failures.",
+        "id": "m2q5"
+      },
+      {
+        "question": "Hybrid cloud generally combines…",
+        "options": [
+          "Local infrastructure and cloud environments",
+          "Two tables in one database",
+          "Only two branches in Git"
+        ],
+        "answer": 0,
+        "explanation": "Hybrid cloud connects on-premises or private infrastructure with public-cloud environments.",
+        "id": "m2q6"
+      },
+      {
+        "question": "Why consider team capability before choosing a tool?",
+        "options": [
+          "Operating and maintaining it is part of the design cost",
+          "Tools never require learning",
+          "It removes the need for reliability"
+        ],
+        "answer": 0,
+        "explanation": "A tool has to fit the skills and operational capacity of the people who will run it.",
+        "id": "m2q7"
+      },
+      {
+        "question": "What is a workflow DAG used to represent?",
+        "options": [
+          "Dependencies between tasks without directed cycles",
+          "Only a model accuracy score",
+          "A list of passwords"
+        ],
+        "answer": 0,
+        "explanation": "A directed acyclic graph expresses task dependencies and valid ordering in a workflow.",
+        "id": "m2q8"
+      },
+      {
+        "question": "A data lake stores raw files. What is still needed?",
+        "options": [
+          "Nothing; files govern themselves",
+          "Metadata, access control and quality management",
+          "A guarantee that every query is fast"
+        ],
+        "answer": 1,
+        "explanation": "Storage alone does not make data understandable, trustworthy or appropriately accessible.",
+        "id": "m2q9"
+      },
+      {
+        "question": "A daily batch design must now support a five-second freshness target. What should the team do?",
+        "options": [
+          "Revisit the architecture against the new requirement",
+          "Ignore the changed requirement",
+          "Rename the existing job"
+        ],
+        "answer": 0,
+        "explanation": "A changed service expectation is a reason to reassess the architecture and its trade-offs.",
+        "id": "m2q10"
+      }
+    ],
+    "videoIds": [
+      "lake",
+      "micro"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Make machine learning repeatable",
+    "name": "MLOps & model development",
+    "outcome": "Experiments",
+    "color": "orange",
+    "description": "Move from a promising experiment to a reproducible, risk-aware workflow.",
+    "chapters": "Introducing MLOps · Chapters 1–2",
+    "lessons": [
+      {
+        "id": "m3l1",
+        "title": "Why MLOps exists",
+        "objective": "Identify model lifecycle risks and the role of MLOps.",
+        "sections": [
+          {
+            "title": "More than a trained model",
+            "body": "A useful ML system needs data, code, runtime environments, evaluation and operational ownership. A good offline score alone does not establish production readiness."
+          },
+          {
+            "title": "Recognize risk",
+            "body": "Risks include unreliable inputs, irreproducible experiments, inappropriate use and performance changes after deployment. Assess likelihood and impact, then define controls and owners."
+          },
+          {
+            "title": "Responsible development",
+            "body": "Document intended use and limitations. Examine error patterns across relevant groups and use cases. Decide when a person must review a result or stop a deployment."
+          }
+        ],
+        "activity": "Make a risk register for a house-price model with three risks, their impacts and proposed controls."
+      },
+      {
+        "id": "m3l2",
+        "title": "From objective to features",
+        "objective": "Connect business objectives, exploration and feature selection.",
+        "sections": [
+          {
+            "title": "Define success first",
+            "body": "Translate a business question into a prediction target, an evaluation metric and an acceptable error range. Include a simple baseline so a complex model must justify its added effort."
+          },
+          {
+            "title": "Explore before training",
+            "body": "Inspect missing values, outliers, distributions, time boundaries and target quality. Split data to reflect how future predictions will be made; keep evaluation data out of feature selection."
+          },
+          {
+            "title": "Engineer with care",
+            "body": "Encoding, scaling, aggregation and domain-derived features can help. Avoid target leakage: a feature unavailable at prediction time can create misleading evaluation results."
+          }
+        ],
+        "activity": "For churn prediction, propose three features available before the prediction date and one leakage feature to exclude."
+      },
+      {
+        "id": "m3l3",
+        "title": "Reproducible training & evaluation",
+        "objective": "Record the inputs and artifacts required to repeat an experiment.",
+        "sections": [
+          {
+            "title": "An experiment is a record",
+            "body": "Track dataset version, code revision, dependency versions, parameters, random seeds and metrics. Store the resulting model artifact with the experiment that produced it."
+          },
+          {
+            "title": "Compare appropriate baselines",
+            "body": "Select algorithms for the target, data and operational constraints. Compare with consistent splits and metrics. Accuracy alone may hide important error patterns on imbalanced data."
+          },
+          {
+            "title": "Reproduction has limits",
+            "body": "Seeds help but may not guarantee bit-for-bit results across hardware and libraries. Document expected variability and verify that the relevant conclusions remain stable."
+          }
+        ],
+        "activity": "Design an experiment log that another student could use to reproduce your baseline."
+      },
+      {
+        "id": "m3l4",
+        "title": "Track an experiment with MLflow",
+        "objective": "Map experiment metadata to a minimal tracking workflow.",
+        "sections": [
+          {
+            "title": "Give each run an identity",
+            "body": "A run connects a candidate model to its parameters, metrics and artifacts. Choose an experiment name, record the code revision and dataset identifier, and log the evaluation metric. These records make comparisons reviewable; they do not guarantee that the underlying evaluation design is sound."
+          },
+          {
+            "title": "Separate artifacts from numbers",
+            "body": "Metrics such as validation MAE describe measured behavior. Parameters record configuration. Artifacts include plots, feature lists, environment specifications and model files. Keep confidential data out of logs and restrict access to tracking storage."
+          },
+          {
+            "title": "Use tracking with a good split",
+            "body": "Fit preprocessing on the training partition only, then apply it to validation data. MLflow can log an experiment, but it will not automatically prevent leakage in your feature construction. The minimal example below illustrates logging; it does not train or validate a real model."
+          }
+        ],
+        "activity": "Design two comparable training runs. List what remains fixed, what changes and which artifacts a reviewer needs.",
+        "code": "import mlflow\n\nmlflow.set_experiment(\"house-price-baseline\")\nwith mlflow.start_run():\n    mlflow.log_param(\"dataset_version\", \"demo-v1\")\n    mlflow.log_param(\"split_strategy\", \"time-based\")\n    mlflow.log_metric(\"validation_mae\", 42000.0)",
+        "codeCaption": "Illustrative logging example. The metric is fictional. Install and configure MLflow separately to run it."
+      }
+    ],
+    "quizzes": [
+      {
+        "question": "Which practice best supports reproducibility?",
+        "options": [
+          "Saving only the final accuracy",
+          "Recording data, code, environment and parameters",
+          "Renaming the model file each time"
+        ],
+        "answer": 1,
+        "explanation": "Reproducing a run requires its inputs and environment, not just its final score.",
+        "id": "m3q1"
+      },
+      {
+        "question": "Which is an example of target leakage in churn prediction?",
+        "options": [
+          "Account age before the prediction date",
+          "A cancellation flag recorded after the prediction date",
+          "Usage measured before the prediction date"
+        ],
+        "answer": 1,
+        "explanation": "A future cancellation flag would not be available when making the intended prediction.",
+        "id": "m3q2"
+      },
+      {
+        "question": "When should a scaler learn its parameters?",
+        "options": [
+          "From the training partition only",
+          "From the combined training and test partitions",
+          "From future production labels"
+        ],
+        "answer": 0,
+        "explanation": "Fit preprocessing on training data and reuse the learned transformation on held-out data.",
+        "id": "m3q3"
+      },
+      {
+        "question": "Why compare against a simple baseline?",
+        "options": [
+          "To establish whether added complexity is useful",
+          "To avoid evaluating the candidate",
+          "To guarantee the baseline is always best"
+        ],
+        "answer": 0,
+        "explanation": "A baseline provides context for judging improvements and the cost of additional complexity.",
+        "id": "m3q4"
+      },
+      {
+        "question": "Which record is an experiment parameter?",
+        "options": [
+          "A learning-rate setting",
+          "A validation error measured after training",
+          "An exported plot"
+        ],
+        "answer": 0,
+        "explanation": "Parameters describe configuration; metrics record measurements and artifacts store output files.",
+        "id": "m3q5"
+      },
+      {
+        "question": "Which record is an experiment artifact?",
+        "options": [
+          "A saved feature-importance plot",
+          "Only a scalar learning rate",
+          "Only an experiment name"
+        ],
+        "answer": 0,
+        "explanation": "Artifacts can include files such as plots, models and environment specifications.",
+        "id": "m3q6"
+      },
+      {
+        "question": "A model has 99% accuracy on a highly imbalanced dataset. What should you do?",
+        "options": [
+          "Assume it is ready for production",
+          "Inspect class-specific metrics and error patterns",
+          "Discard the test labels"
+        ],
+        "answer": 1,
+        "explanation": "Accuracy alone can hide poor performance on a small but important class.",
+        "id": "m3q7"
+      },
+      {
+        "question": "Do random seeds always guarantee identical results across hardware?",
+        "options": [
+          "Yes, in every library and environment",
+          "No; document the environment and expected variability",
+          "Seeds make versioning unnecessary"
+        ],
+        "answer": 1,
+        "explanation": "Hardware, libraries and nondeterministic operations can affect reproducibility despite fixed seeds.",
+        "id": "m3q8"
+      },
+      {
+        "question": "What is MLflow Tracking primarily useful for in an experiment?",
+        "options": [
+          "Recording run metadata, metrics and artifacts",
+          "Automatically eliminating every data leak",
+          "Replacing every production monitor"
+        ],
+        "answer": 0,
+        "explanation": "Tracking makes run inputs and outputs reviewable, but evaluation design and operations remain your responsibility.",
+        "id": "m3q9"
+      },
+      {
+        "question": "Which is a sound model-development starting point?",
+        "options": [
+          "Choose the largest model before defining the task",
+          "Define intended use, prediction target and evaluation criteria",
+          "Optimize only the training score"
+        ],
+        "answer": 1,
+        "explanation": "A clear objective and evaluation plan give the modeling work a meaningful target.",
+        "id": "m3q10"
+      }
+    ],
+    "videoIds": [
+      "mlops",
+      "tracking"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Ship with confidence",
+    "name": "Production & CI/CD",
+    "outcome": "Delivery",
+    "color": "sage",
+    "description": "Validate artifacts, automate delivery and plan a safe production release.",
+    "chapters": "Introducing MLOps · Chapters 3–4",
+    "lessons": [
+      {
+        "id": "m4l1",
+        "title": "Prepare a production runtime",
+        "objective": "Explain environment differences and model validation before launch.",
+        "sections": [
+          {
+            "title": "Development is not production",
+            "body": "Production has different traffic, permissions, dependencies and reliability expectations. Package the model and its runtime so behavior is consistent and configuration is explicit."
+          },
+          {
+            "title": "Validate access and behavior",
+            "body": "Check input schemas, data access, dependencies and prediction interfaces before launch. Separate validation from the training process and test against the intended use."
+          },
+          {
+            "title": "Evaluate model risk",
+            "body": "A higher-impact use case may need more review, documentation and monitoring. Decide release criteria before evaluating the candidate model, and record approval decisions."
+          }
+        ],
+        "activity": "Write a pre-launch checklist covering environment, access, data schema and model behavior."
+      },
+      {
+        "id": "m4l2",
+        "title": "Build the CI/CD pipeline",
+        "objective": "Design a delivery pipeline with meaningful quality gates.",
+        "sections": [
+          {
+            "title": "Continuous integration",
+            "body": "A code change triggers checks such as unit tests, schema validation and data-quality checks. Versioned artifacts connect each result to the source and environment that produced it."
+          },
+          {
+            "title": "From candidate to release",
+            "body": "A pipeline can train, evaluate, package and validate a model before promoting it. Model metrics are one gate alongside security, interface and operational checks."
+          },
+          {
+            "title": "Automate with judgment",
+            "body": "Continuous delivery keeps a validated candidate ready to release. Continuous deployment releases automatically after gates pass. Human approval may be appropriate depending on risk."
+          }
+        ],
+        "activity": "Draw commit → test → train → evaluate → package → stage → approve → deploy. Add a stop condition to three stages."
+      },
+      {
+        "id": "m4l3",
+        "title": "Deployment & maintenance",
+        "objective": "Compare deployment modes and plan rollback and maintenance.",
+        "sections": [
+          {
+            "title": "Match the serving pattern",
+            "body": "Batch prediction produces results on a schedule. Online prediction responds to requests. Select the mode using latency, throughput and business needs."
+          },
+          {
+            "title": "Release gradually",
+            "body": "A canary release sends a small share of traffic to a new version. Blue-green uses parallel environments and a traffic switch. Shadow deployment evaluates a candidate without using its predictions for live decisions."
+          },
+          {
+            "title": "Keep a recovery path",
+            "body": "Retain the last validated model and compatible environment. Monitor service health and model behavior, define rollback triggers and assign someone to respond."
+          }
+        ],
+        "activity": "Plan a canary release. Define the traffic share, evaluation window, success criteria and rollback trigger."
+      },
+      {
+        "id": "m4l4",
+        "title": "Design release gates & a rollback record",
+        "objective": "Specify evidence required to promote a candidate and recover safely.",
+        "sections": [
+          {
+            "title": "Make the candidate identifiable",
+            "body": "A release record links the model artifact, training dataset version, code commit, environment and evaluation report. Include the expected request schema and response contract. This allows a release to be investigated without guessing which model file was deployed."
+          },
+          {
+            "title": "Separate kinds of tests",
+            "body": "Unit tests check transformation logic; data checks validate inputs; model checks evaluate quality; integration tests exercise prediction interfaces; load tests assess runtime behavior. A single accuracy threshold cannot substitute for these other checks. Compare the candidate with the deployed baseline under equivalent conditions."
+          },
+          {
+            "title": "Rehearse recovery",
+            "body": "Before a canary, retain the last approved release and compatible configuration. Define who can stop the rollout, which metrics trigger rollback and how delayed labels affect the decision. Validate that the older model can still read the current input schema. A rollback that exists only on paper is not an operational plan."
+          }
+        ],
+        "activity": "Draft a release record and three go/no-go gates. Add an owner, an observation window and a rollback decision for each.",
+        "code": "release: house-price-demo-v2\nmodel: immutable-artifact-id\ndata: training-snapshot-id\ncode: source-commit-id\ngates:\n  - schema-compatible\n  - evaluation-approved\n  - latency-within-target\nrollback: last-approved-release",
+        "codeCaption": "Illustrative release record. Targets and approval rules depend on the application."
+      }
+    ],
+    "quizzes": [
+      {
+        "question": "What is the purpose of a release gate?",
+        "options": [
+          "Stop every release permanently",
+          "Require agreed checks before promotion",
+          "Replace monitoring after deployment"
+        ],
+        "answer": 1,
+        "explanation": "Release gates prevent promotion until explicit quality and risk criteria are met.",
+        "id": "m4q1"
+      },
+      {
+        "question": "What is a canary release?",
+        "options": [
+          "Sending a limited traffic share to a candidate version",
+          "Deleting the previous model immediately",
+          "Replacing every user request without observation"
+        ],
+        "answer": 0,
+        "explanation": "A canary limits initial exposure so the candidate can be observed before expanding the rollout.",
+        "id": "m4q2"
+      },
+      {
+        "question": "What distinguishes shadow deployment?",
+        "options": [
+          "Candidate predictions are evaluated without driving live decisions",
+          "The candidate receives no inputs",
+          "Monitoring is disabled"
+        ],
+        "answer": 0,
+        "explanation": "Shadow deployment observes a candidate alongside production without using its outputs for the live decision.",
+        "id": "m4q3"
+      },
+      {
+        "question": "A production runtime must include…",
+        "options": [
+          "Only a notebook filename",
+          "Compatible dependencies, configuration and prediction interfaces",
+          "Only a model accuracy number"
+        ],
+        "answer": 1,
+        "explanation": "The model artifact needs a compatible environment and clear input/output expectations.",
+        "id": "m4q4"
+      },
+      {
+        "question": "What does continuous delivery emphasize?",
+        "options": [
+          "A validated candidate kept ready for release",
+          "Automatic release with no checks",
+          "Training a model exactly once"
+        ],
+        "answer": 0,
+        "explanation": "Continuous delivery prepares validated changes for release; deployment may still require approval.",
+        "id": "m4q5"
+      },
+      {
+        "question": "What evidence belongs in a release record?",
+        "options": [
+          "Model version, code revision, data version and evaluation report",
+          "Only the developer’s name",
+          "Only an unversioned model filename"
+        ],
+        "answer": 0,
+        "explanation": "A release record connects the deployed artifact to the evidence and inputs that justify it.",
+        "id": "m4q6"
+      },
+      {
+        "question": "Which test checks that the prediction endpoint accepts the expected input?",
+        "options": [
+          "An interface or integration test",
+          "A font comparison",
+          "Only a training-loss plot"
+        ],
+        "answer": 0,
+        "explanation": "An interface test exercises the schema and behavior expected by clients of the prediction service.",
+        "id": "m4q7"
+      },
+      {
+        "question": "Why test rollback before a rollout?",
+        "options": [
+          "To verify the earlier release remains compatible and recoverable",
+          "To avoid keeping the earlier artifact",
+          "To ensure the new model never needs monitoring"
+        ],
+        "answer": 0,
+        "explanation": "Recovery depends on retained artifacts and compatibility, not just a written intention to roll back.",
+        "id": "m4q8"
+      },
+      {
+        "question": "Which serving mode suits a nightly list of predicted demand values?",
+        "options": [
+          "Scheduled batch prediction",
+          "Only one-request-at-a-time interactive serving",
+          "No serving mode can support it"
+        ],
+        "answer": 0,
+        "explanation": "Batch prediction fits results produced on a schedule when the business can wait for the batch.",
+        "id": "m4q9"
+      },
+      {
+        "question": "A model beats the baseline but exceeds the latency limit. Should it automatically pass?",
+        "options": [
+          "Yes, quality scores override every requirement",
+          "No; operational requirements are also release gates",
+          "Yes, if its filename contains “final”"
+        ],
+        "answer": 1,
+        "explanation": "Production readiness includes runtime constraints as well as model-quality criteria.",
+        "id": "m4q10"
+      }
+    ],
+    "videoIds": [
+      "cloud",
+      "best"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Keep models trustworthy",
+    "name": "Monitoring & governance",
+    "outcome": "Trust",
+    "color": "blue",
+    "description": "Detect change, close the feedback loop and make model decisions traceable.",
+    "chapters": "Introducing MLOps · Chapters 5–6",
+    "lessons": [
+      {
+        "id": "m5l1",
+        "title": "Recognize model degradation",
+        "objective": "Distinguish input drift from changes in model performance.",
+        "sections": [
+          {
+            "title": "The world changes",
+            "body": "A model can degrade as customer behavior, products or data collection change. Monitor service health, input data and outcomes because each reveals a different class of problem."
+          },
+          {
+            "title": "Drift is a signal",
+            "body": "Input drift means a feature distribution has changed relative to a reference. It does not prove prediction quality has declined. Investigate the cause and evaluate outcomes when labels are available."
+          },
+          {
+            "title": "Use ground truth",
+            "body": "Ground-truth evaluation compares predictions with observed outcomes. Labels may arrive late, so define the evaluation window and distinguish early proxy signals from confirmed performance changes."
+          }
+        ],
+        "activity": "For a demand forecast, list one service metric, one input-drift signal and one ground-truth metric."
+      },
+      {
+        "id": "m5l2",
+        "title": "Build the feedback loop",
+        "objective": "Design monitoring and retraining decisions with validation.",
+        "sections": [
+          {
+            "title": "Choose a reference",
+            "body": "Compare recent inputs to a documented baseline. Missingness rates, summary statistics and distribution comparisons can highlight change; thresholds should reflect the use case and data variability."
+          },
+          {
+            "title": "Investigate before reacting",
+            "body": "A drift alert could indicate real population change or a broken upstream transformation. Check data quality and context before retraining a model on potentially corrupted inputs."
+          },
+          {
+            "title": "Retraining is another release",
+            "body": "Trigger retraining based on evidence or a schedule, then apply the same evaluation and release gates used for initial deployment. Keep an audit record and a rollback option."
+          }
+        ],
+        "activity": "Write an alert playbook: trigger, owner, checks, decision and recovery. Include a reason not to retrain immediately."
+      },
+      {
+        "id": "m5l3",
+        "title": "Govern the model lifecycle",
+        "objective": "Connect documentation and controls with model risk.",
+        "sections": [
+          {
+            "title": "Make ownership visible",
+            "body": "A model inventory records purpose, owner, versions, status and intended users. A model card adds evaluation results, data limitations and known failure modes."
+          },
+          {
+            "title": "Scale controls with risk",
+            "body": "Use review, access control, lineage, approvals and change logs in proportion to the impact of model decisions. Reproducibility and traceability support responsible operations."
+          },
+          {
+            "title": "Regulatory context",
+            "body": "Model governance includes risk management, privacy-aware data handling and clear accountability. Study how documentation, data handling and accountability relate to governance. Actual obligations depend on jurisdiction and context; this lesson is a conceptual introduction."
+          }
+        ],
+        "activity": "Draft a model card with intended use, excluded uses, training data summary, evaluation, limitations and owner."
+      },
+      {
+        "id": "m5l4",
+        "title": "Write a monitoring incident playbook",
+        "objective": "Turn an alert into an owned, evidence-based response.",
+        "sections": [
+          {
+            "title": "Begin with a concrete signal",
+            "body": "Suppose the missing-value rate for floor_area rises after a data-source change. An input alert is evidence of changed data, not proof of model failure. Inspect collection, schemas, transformations and affected traffic before acting. Record the baseline and the alert window."
+          },
+          {
+            "title": "Separate diagnosis from retraining",
+            "body": "If a broken unit conversion caused the shift, repair the data path first. Retraining on corrupted inputs can reinforce the error. When labels arrive, compare outcome metrics and error slices against the baseline. Keep service failures, data drift and concept changes distinct in the investigation."
+          },
+          {
+            "title": "Close the feedback loop",
+            "body": "Record the incident, impact, owner, corrective action and follow-up check. For any retraining decision, version the new data and reuse evaluation and release gates. Update the model card when intended use, limitations or measured behavior changes."
+          }
+        ],
+        "activity": "Create a playbook for a sudden missing-feature alert. Include triage checks, an escalation owner and evidence required before retraining.",
+        "code": "Alert → acknowledge → inspect source\n      → validate transformations\n      → assess affected predictions\n      → repair / rollback / evaluate retraining\n      → validate recovery → record lessons",
+        "codeCaption": "A conceptual response flow. Operational thresholds must be set for the actual system."
+      }
+    ],
+    "quizzes": [
+      {
+        "question": "An input-drift alert means…",
+        "options": [
+          "The model must be retrained immediately",
+          "The input distribution changed and needs investigation",
+          "The model is certainly inaccurate"
+        ],
+        "answer": 1,
+        "explanation": "Drift identifies a change in inputs; investigate data quality and outcome performance before deciding how to respond.",
+        "id": "m5q1"
+      },
+      {
+        "question": "Which observation directly measures model error when outcomes are available?",
+        "options": [
+          "Comparing predictions with ground-truth labels",
+          "Counting input columns alone",
+          "Checking only the service hostname"
+        ],
+        "answer": 0,
+        "explanation": "Ground-truth evaluation measures predictive behavior against observed outcomes.",
+        "id": "m5q2"
+      },
+      {
+        "question": "A unit conversion bug changes a feature distribution. What should happen first?",
+        "options": [
+          "Retrain immediately on the corrupted inputs",
+          "Investigate and repair the data transformation",
+          "Disable the alert forever"
+        ],
+        "answer": 1,
+        "explanation": "An upstream defect should be fixed before considering retraining on the changed data.",
+        "id": "m5q3"
+      },
+      {
+        "question": "What should a model card document?",
+        "options": [
+          "Intended use, evaluation and known limitations",
+          "Only the model file extension",
+          "Only the cloud invoice"
+        ],
+        "answer": 0,
+        "explanation": "Model cards support informed use by describing purpose, evaluation and constraints.",
+        "id": "m5q4"
+      },
+      {
+        "question": "Why can production accuracy be unavailable immediately?",
+        "options": [
+          "Outcome labels may arrive later",
+          "Accuracy never requires labels",
+          "Model versions remove the need for outcomes"
+        ],
+        "answer": 0,
+        "explanation": "Many tasks have delayed ground truth, so early signals must be distinguished from confirmed outcome performance.",
+        "id": "m5q5"
+      },
+      {
+        "question": "What is a monitoring baseline?",
+        "options": [
+          "A documented reference for comparison",
+          "A guarantee that drift is harmful",
+          "A replacement for incident ownership"
+        ],
+        "answer": 0,
+        "explanation": "A baseline defines the reference distribution or performance against which changes are assessed.",
+        "id": "m5q6"
+      },
+      {
+        "question": "Should a retrained model skip release validation?",
+        "options": [
+          "Yes, retraining proves it is better",
+          "No, it should pass evaluation and release gates",
+          "Yes, if the data is newer"
+        ],
+        "answer": 1,
+        "explanation": "New training data can introduce new failures; a retrained model needs evidence before promotion.",
+        "id": "m5q7"
+      },
+      {
+        "question": "How should governance effort relate to model risk?",
+        "options": [
+          "Controls should reflect the impact and context of use",
+          "Every model needs identical controls regardless of impact",
+          "Higher impact means less documentation"
+        ],
+        "answer": 0,
+        "explanation": "Proportionate controls focus review and accountability where potential harm or failure matters most.",
+        "id": "m5q8"
+      },
+      {
+        "question": "Which belongs in an alert playbook?",
+        "options": [
+          "An owner, diagnostic checks and escalation decisions",
+          "Only a chart color",
+          "Only a model nickname"
+        ],
+        "answer": 0,
+        "explanation": "An actionable playbook links a signal to accountable investigation and recovery decisions.",
+        "id": "m5q9"
+      },
+      {
+        "question": "A new customer population changes the relationship between features and outcomes. What concern does this suggest?",
+        "options": [
+          "Possible concept drift requiring outcome-based evaluation",
+          "Only a visual formatting issue",
+          "Proof that the network is unavailable"
+        ],
+        "answer": 0,
+        "explanation": "A changed feature-to-outcome relationship suggests concept drift; evaluate behavior with suitable outcome evidence.",
+        "id": "m5q10"
+      }
+    ],
+    "videoIds": [
+      "governance"
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+.DS_Store
+*.tar.gz
+*.tgz
+qa/
+
+tmp/pdfs/
+output/pdf/
