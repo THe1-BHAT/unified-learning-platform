@@ -7,5 +7,4 @@ tsconfig.tsbuildinfo
 .env.*
 !.env.example
 supabase/.temp/
-supabase/.branches/
 npm-debug.log*

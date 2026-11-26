@@ -9,7 +9,6 @@ This document supersedes the earlier NestJS/Prisma-only architecture recommendat
 - `supabase/functions/redeem-coupon/`: validates the caller's Supabase session, then invokes the atomic SQL RPC using that caller's JWT.
 - `web/lib/supabase/`: browser and server Supabase clients.
 - `web/app/auth/callback/route.ts`: OAuth callback exchange.
-- `web/app/courses/`: database-backed catalog and lesson pages, account-scoped progress, server-scored quizzes, and coupon redemption UI.
 - `web/lib/prisma.ts`: server-only Prisma client using the pooled database URL.
 - `prisma/schema.prisma`: ORM model aligned with the Supabase schema; do not create a second Prisma migration history.
 
@@ -19,9 +18,9 @@ Prerequisites: Node.js, npm, Docker Desktop, and the Supabase CLI (included as a
 
 ```sh
 npm install
-cp .env.example web/.env.local
+cp .env.example .env.local
 npx supabase start
-npx supabase migration up --local
+npx supabase db reset
 npm run db:test
 npm run db:types
 npm run prisma:pull
@@ -29,7 +28,7 @@ npm run prisma:generate
 npm run dev
 ```
 
-Set the local Supabase URL and anon key printed by `supabase start` in `web/.env.local`. Set `DATABASE_URL` to `postgresql://postgres:postgres@127.0.0.1:54329/postgres?pgbouncer=true` for pooled runtime use and `DIRECT_URL` to `postgresql://postgres:postgres@127.0.0.1:54322/postgres` for Prisma introspection. For hosted Supabase, use its transaction pooler for `DATABASE_URL` and a direct/session connection for `DIRECT_URL`. Never add `.env.local` or a service-role key to Git.
+Set the local Supabase URL and anon key printed by `supabase start` in `.env.local`. Set `DATABASE_URL` to `postgresql://postgres:postgres@127.0.0.1:54329/postgres?pgbouncer=true` for pooled runtime use and `DIRECT_URL` to `postgresql://postgres:postgres@127.0.0.1:54322/postgres` for Prisma introspection. For hosted Supabase, use its transaction pooler for `DATABASE_URL` and a direct/session connection for `DIRECT_URL`. Never add `.env.local` or a service-role key to Git.
 
 The Supabase CLI applies `supabase/migrations/`; Prisma does not migrate the database. `prisma:pull` and `prisma:generate` refresh the typed ORM after a migration. Prisma is server-only. For the hosted project, create a separate, long-random-password `prisma` database user and use it for the Prisma URLs; keep it server-side. That user may bypass RLS, so every Prisma-backed operation must still verify the signed-in user and authorization in server code. Supabase client and the coupon redemption RPC rely on RLS and the caller's JWT.
 
@@ -75,10 +74,4 @@ For the next UI branch, the course catalog can read `courses.slug`, `title`, and
 - Submit the complete answer map with `supabase.rpc('submit_quiz', { p_quiz_id, p_answers })`. PostgreSQL computes the score and awards 20 coins once for that quiz. Repeated submissions do not duplicate the grant.
 - Read the signed-in learner’s balance from `coin_wallets` (RLS limits it to their own wallet). The client cannot write wallets or coin transactions.
 - The leaderboard is `supabase.rpc('get_coin_leaderboard', { p_limit: 10, p_offset: 0 })`. Learners appear only after opting in via their own `profiles.show_on_leaderboard` field. Pages are bounded and ordered from the indexed wallet balance.
-- Course rows, lessons, quizzes, and private answer keys are seeded by the versioned migration generator; learner clients must not read `quiz_questions` directly.
-
-## Learner application
-
-The Next.js app reads published courses and RLS-filtered lesson previews. Full lessons and knowledge checks require an active enrollment. Lesson completion calls `mark_lesson_complete`; quiz payloads come from `get_quiz` and answer scoring happens in `submit_quiz`. Learner progress and reward balances are scoped to the authenticated Supabase user. The older standalone app in `app/dist/` remains a browser-only prototype and is not used by the production routes.
-
-Payment processing is not configured yet. The catalog shows the course price and supports coupon redemption, but a production checkout requires a selected provider plus trusted checkout and signed-webhook functions. Do not grant course access from a client return URL.
+- Quiz rows and private answer keys should be seeded by trusted admin/database tooling. Learner clients must not read `quiz_questions` directly.

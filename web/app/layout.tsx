@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "./learning.css";
 
 export const metadata: Metadata = {
 	title: "NXGENVARSITY × PRERANA",
