@@ -4,6 +4,8 @@
 
 The Edge Function replaces the older REST/NestJS proposal below for coupon redemption. Call `POST /functions/v1/redeem-coupon` with a Supabase bearer token and `{ "courseSlug": "cybersecurity", "code": "..." }`. Success returns the enrollment ID, course slug, and whether the learner already had access; invalid coupon states return one generic error. See [Supabase implementation handoff](SUPABASE-IMPLEMENTATION.md) for setup and payment-state rules.
 
+Learning reward calls are authenticated PostgreSQL RPCs: `mark_lesson_complete({ p_lesson_id })`, `get_quiz({ p_quiz_id })`, `submit_quiz({ p_quiz_id, p_answers })`, and `get_coin_leaderboard({ p_limit, p_offset })`. New profiles receive 50 coins, a fully completed module grants 10 once, and a complete quiz submission grants 20 once. Quiz scores and all coin changes are computed transactionally in PostgreSQL. See the handoff document for the RPC contract and leaderboard privacy behavior.
+
 ## Conventions
 
 - Base URL: `/api/v1`

@@ -14,7 +14,12 @@ export async function createSupabaseServerClient() {
       getAll: () => cookieStore.getAll(),
       setAll: (updates) => {
         try {
-          updates.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+          const rememberMe = cookieStore.get("nxv-remember")?.value === "1";
+          updates.forEach(({ name, value, options }) => {
+            const cookieOptions = { ...options };
+            if (!rememberMe && cookieOptions.maxAge !== 0) delete cookieOptions.maxAge;
+            cookieStore.set(name, value, cookieOptions);
+          });
         } catch {
           // Server components cannot write cookies; middleware/actions refresh them.
         }

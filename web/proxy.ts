@@ -13,7 +13,12 @@ export async function proxy(request: NextRequest) {
       setAll: (updates) => {
         updates.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
-        updates.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        const rememberMe = request.cookies.get("nxv-remember")?.value === "1";
+        updates.forEach(({ name, value, options }) => {
+          const cookieOptions = { ...options };
+          if (!rememberMe && cookieOptions.maxAge !== 0) delete cookieOptions.maxAge;
+          response.cookies.set(name, value, cookieOptions);
+        });
       },
     },
   });

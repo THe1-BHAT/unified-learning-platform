@@ -5,7 +5,7 @@ This document supersedes the earlier NestJS/Prisma-only architecture recommendat
 ## Implemented foundation
 
 - `supabase/config.toml`: local Supabase Auth, Postgres, Studio, and Storage configuration.
-- `supabase/migrations/`: schema, seed courses, profile creation trigger, RLS, private bucket, access helper, rate limiter, coupon RPC, and payment-ready records.
+- `supabase/migrations/`: schema, seed courses, profile creation trigger, RLS, private bucket, access helper, coupon RPC, payment-ready records, and transactional learning rewards.
 - `supabase/functions/redeem-coupon/`: validates the caller's Supabase session, then invokes the atomic SQL RPC using that caller's JWT.
 - `web/lib/supabase/`: browser and server Supabase clients.
 - `web/app/auth/callback/route.ts`: OAuth callback exchange.
@@ -65,3 +65,13 @@ The private Storage bucket is `course-downloads`; object paths use `{course-slug
 The migration includes INR orders, payment attempts, and provider-webhook idempotency records. Browser roles can read only their own order and attempt summaries; they cannot create/mark payments paid or activate enrollments. No live gateway is selected or configured yet. Once the provider is chosen, add a trusted checkout Edge Function and a signed-webhook Edge Function. Verify webhook signatures, deduplicate provider event IDs, and update order/payment/enrollment state atomically. Never grant access from a browser return URL or client-supplied success flag.
 
 For the next UI branch, the course catalog can read `courses.slug`, `title`, and `price_paise`. The coupon form can call the Edge Function above. Payment UI should remain a nonfunctional/coming-soon state until the provider integration is implemented and configured.
+
+## Coins and leaderboard
+
+- New profiles receive 50 coins. The grant happens once when the profile is created.
+- Call `supabase.rpc('mark_lesson_complete', { p_lesson_id })` to save a lesson completion. When all lessons in that module are complete, the same database transaction grants 10 coins once.
+- Get quiz data with `supabase.rpc('get_quiz', { p_quiz_id })`; the returned question payload never includes the answer key.
+- Submit the complete answer map with `supabase.rpc('submit_quiz', { p_quiz_id, p_answers })`. PostgreSQL computes the score and awards 20 coins once for that quiz. Repeated submissions do not duplicate the grant.
+- Read the signed-in learner’s balance from `coin_wallets` (RLS limits it to their own wallet). The client cannot write wallets or coin transactions.
+- The leaderboard is `supabase.rpc('get_coin_leaderboard', { p_limit: 10, p_offset: 0 })`. Learners appear only after opting in via their own `profiles.show_on_leaderboard` field. Pages are bounded and ordered from the indexed wallet balance.
+- Quiz rows and private answer keys should be seeded by trusted admin/database tooling. Learner clients must not read `quiz_questions` directly.
