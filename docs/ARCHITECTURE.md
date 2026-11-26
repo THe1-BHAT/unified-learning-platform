@@ -1,72 +1,72 @@
 # Architecture
 
-## Recommended baseline
+## Version 1 decision
 
-Use a TypeScript monorepo: **Next.js** for the web application, **NestJS** for the API, **PostgreSQL** for durable data, **Prisma** for migrations/data access, and **Redis** for rate limiting and short-lived caching. This is deliberately more structured than the current static sites because identity and entitlement security cannot safely live in browser storage.
+Version 1 uses **Supabase** for PostgreSQL, Auth, Storage, RLS, SQL migrations, and Edge Functions. **Prisma is retained as a server-only typed ORM** in the Next.js integration app; Supabase SQL migrations remain the only schema migration history. We are not adding NestJS, Redis, or a second API service.
 
-```text
-Browser
-  │ HTTPS
-  ▼
-Next.js web app ───────► CDN / object storage (images, PDFs)
-  │ authenticated API calls
-  ▼
-NestJS API ────────────► PostgreSQL (users, courses, access, progress)
-  │          └─────────► Redis (rate limits, cache, sessions if used)
-  ▼
-Structured logs / error monitoring
-```
+The current static site remains intact as the content prototype. A minimal Next.js integration scaffold now provides the OAuth callback, session refresh, and trusted server-side access helpers; the existing login UI and glass styling are unchanged.
 
-## Core boundaries
+    Browser / static learning app
+      │ Supabase Auth session
+      ▼
+    Supabase Auth ─────────► Google and email/password sign-in
+      │
+      ├──► Supabase PostgreSQL ─► courses, enrollments, coupons, progress
+      ├──► Edge Functions / SQL RPC ─► coupon redemption and signed downloads
+      └──► Private Storage ─► protected PDFs and other downloads
+
+## Responsibilities
 
 | Layer | Responsibilities | Must not do |
 | --- | --- | --- |
-| Web | Render UI, collect input, show access state, call APIs | Decide ownership or store coupon truth locally |
-| API | Authenticate, authorize, redeem coupons atomically, manage content/progress | Render page HTML or expose passwords/coupon secrets |
-| Database | Durable, transactional source of truth | Be queried directly by browser clients |
-| Object storage | Static PDFs/images | Enforce course access by an unprotected public URL |
-
-For protected downloadable assets, return short-lived signed URLs only after an entitlement check, or stream files through the API.
-
-## Modular API design
-
-```text
-src/
-├── auth/          # registration, sessions/tokens, password reset later
-├── users/         # profile and roles
-├── catalog/       # public courses and pricing labels
-├── courses/       # modules, lessons, resources, protected content delivery
-├── enrollments/   # entitlement checks and lifecycle
-├── coupons/       # admin management + atomic redemption service
-├── learning/      # progress, notes, saved resources, quiz attempts
-├── admin/         # administrative routes and audit views
-└── common/        # validation, auth guards, errors, logging
-```
-
-`EnrollmentService.canAccess(userId, courseId)` is the sole domain service used to grant protected course access. Controllers and asset endpoints call it; front-end flags do not substitute it.
+| Frontend | Render catalog/course UI, collect coupon input, show access state | Decide entitlement or create active enrollments |
+| Supabase Auth | Authenticate users and maintain sessions | Grant course access by itself |
+| PostgreSQL + RLS | Store durable data and constrain user-level reads/writes | Trust client-provided user IDs or roles |
+| Edge Function / RPC | Validate and atomically redeem coupons, check entitlement, create signed URLs | Expose service-role credentials to the browser |
+| Prisma in Next.js server code | Typed trusted server-side queries | Run in the browser or replace RLS authorization checks |
+| Private Storage | Store protected PDFs/assets | Serve protected files from public URLs |
 
 ## Authentication and authorization
 
-- Use a mature provider or an API-managed session implementation. For this project, secure HTTP-only, `Secure`, `SameSite=Lax` cookies are preferred over browser-stored bearer tokens.
-- Hash passwords with Argon2id. Never store raw passwords.
-- Validate request DTOs at the API edge; parameterize all database access through Prisma.
-- Require authentication and a role guard for admin endpoints.
-- Rate-limit login, registration, password reset, and coupon redemption by IP and account/user identifier.
-- Log security-relevant actions (admin coupon changes, redemption attempts, enrollment changes) without logging coupon plaintext or tokens.
+- Enable Google OAuth and email/password authentication in Supabase Auth.
+- Create a profiles record linked to auth.users when a user first signs in.
+- Store roles in protected database data; learners must never be able to make themselves an admin.
+- Enable RLS on every exposed learner-data table. Learners can access only their own profile, progress, notes, and enrollment rows.
+- The browser may read an active enrollment for the signed-in user, but cannot insert or activate an enrollment directly.
+- Coupon redemption, admin changes, and signed download creation run only in an Edge Function or a carefully permissioned SQL RPC.
+- Keep Supabase service-role keys server-side only. Commit only environment-variable names in .env.example.
+- Prisma uses a private server-only database user; because it can bypass RLS, every Prisma-backed operation must independently verify the current user and permissions.
 
-## Deployment stages
+## Entitlement rule
 
-1. **Local:** Docker Compose provides PostgreSQL and Redis; application runs with local environment variables.
-2. **Preview:** every pull request builds, tests, runs migrations against an ephemeral/test database, and deploys a preview.
-3. **Production:** managed Postgres with automated backups, managed Redis, separate web/API services, environment secrets in the deployment provider, and migrations executed once in the release pipeline.
+An enrollment is the source of truth for paid access. Protected lessons, quizzes, labs, and downloads require an enrollment where status is active.
 
-Start with a managed platform to minimize operations. Scale web and API instances horizontally because neither retains authoritative in-memory state.
+    Sign in → redeem valid coupon → transaction activates enrollment → access check passes → protected content opens
 
-## Observability and resilience
+Frontend route guards improve usability but are not security. The Edge Function/RPC or server layer must re-check active enrollment before returning protected content or signed download URLs.
 
-- `/health` and `/ready` endpoints; database and Redis readiness checks.
-- JSON structured logs containing request ID, route, status, duration, and user ID only when authenticated.
-- Error monitoring for client and API exceptions.
-- Nightly database backup and tested restoration procedure before launch.
-- Database uniqueness constraints remain the final defense against duplicate coupon redemptions during concurrent requests.
+## Coupon redemption boundary
 
+The redemption operation is a single database transaction:
+
+1. Normalize and hash the submitted code.
+2. Lock and validate the matching coupon: active, 100% discount, correct course, valid date window, available uses.
+3. Handle any existing enrollment according to the lifecycle in DATABASE.md.
+4. Create or update the enrollment at ₹0.
+5. Record the immutable redemption and increment the usage count.
+6. Commit, or roll back every change on failure.
+
+Rate-limit coupon redemption by authenticated user at the Edge Function boundary. Add an IP-based limit at deployment/API-gateway level. Log redemption attempts without storing coupon plaintext.
+
+## Deployment and operations
+
+- Use separate Supabase development and production projects before release.
+- Keep schema changes in ordered SQL migrations under supabase/migrations/.
+- Run migrations and RLS tests in CI before merging backend changes.
+- Use Supabase backups/Point-in-Time Recovery according to the chosen plan; document restoration before launch.
+- Add structured application/Edge Function logs and error monitoring.
+- Store PDFs in a private bucket and return short-lived signed URLs only after entitlement verification.
+
+## Future boundary
+
+A separate API service can be introduced later if integrations or scale require it. Live payment processing remains disabled until a provider is selected and its signed webhook is implemented. V1 includes payment-ready order and attempt records; only verified server-side payment evidence may activate an enrollment.

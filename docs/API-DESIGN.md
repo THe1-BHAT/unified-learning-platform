@@ -1,5 +1,9 @@
 # API Design
 
+## Current V1 contract
+
+The Edge Function replaces the older REST/NestJS proposal below for coupon redemption. Call `POST /functions/v1/redeem-coupon` with a Supabase bearer token and `{ "courseSlug": "cybersecurity", "code": "..." }`. Success returns the enrollment ID, course slug, and whether the learner already had access; invalid coupon states return one generic error. See [Supabase implementation handoff](SUPABASE-IMPLEMENTATION.md) for setup and payment-state rules.
+
 ## Conventions
 
 - Base URL: `/api/v1`

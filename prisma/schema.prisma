@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProfileRole {
+  learner
+  admin
+  @@map("profile_role")
+}
+
+enum EnrollmentStatus {
+  pending_payment
+  active
+  revoked
+  expired
+  @@map("enrollment_status")
+}
+
+enum EnrollmentSource {
+  coupon
+  payment
+  admin
+  @@map("enrollment_source")
+}
+
+enum ResourceKind {
+  pdf
+  video
+  link
+  file
+  @@map("resource_kind")
+}
+
+enum OrderStatus {
+  pending
+  paid
+  failed
+  cancelled
+  refunded
+  @@map("order_status")
+}
+
+enum PaymentAttemptStatus {
+  created
+  pending
+  succeeded
+  failed
+  cancelled
+  @@map("payment_attempt_status")
+}
+
+model Profile {
+  id           String             @id @db.Uuid
+  email        String?            @unique
+  fullName     String?            @map("full_name")
+  avatarUrl    String?            @map("avatar_url")
+  role         ProfileRole        @default(learner)
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  enrollments  Enrollment[]
+  redemptions  CouponRedemption[]
+  redemptionAttempts CouponRedemptionAttempt[]
+  progress     LessonProgress[]
+  orders       Order[]
+  @@map("profiles")
+}
+
+model Course {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String           @unique
+  title       String
+  description String           @default("")
+  pricePaise  Int              @map("price_paise")
+  published   Boolean          @default(false)
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  modules     CourseModule[]
+  resources   CourseResource[]
+  enrollments Enrollment[]
+  coupons     Coupon[]
+  orders      Order[]
+  @@map("courses")
+}
+
+model CourseModule {
+  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId String   @map("course_id") @db.Uuid
+  slug     String
+  title    String
+  position Int
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
+  @@unique([courseId, slug])
+  @@unique([courseId, position])
+  @@map("course_modules")
+}
+
+model Lesson {
+  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId  String          @map("module_id") @db.Uuid
+  slug      String
+  title     String
+  content   Json            @default("{}")
+  position  Int
+  isPreview Boolean         @default(false) @map("is_preview")
+  module    CourseModule    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress  LessonProgress[]
+  @@unique([moduleId, slug])
+  @@unique([moduleId, position])
+  @@map("lessons")
+}
+
+model CourseResource {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId    String       @map("course_id") @db.Uuid
+  title       String
+  kind        ResourceKind
+  storageKey  String?      @map("storage_key")
+  externalUrl String?      @map("external_url")
+  isPreview   Boolean      @default(false) @map("is_preview")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  @@map("course_resources")
+}
+
+model Enrollment {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String           @map("user_id") @db.Uuid
+  courseId        String           @map("course_id") @db.Uuid
+  status          EnrollmentStatus @default(pending_payment)
+  source          EnrollmentSource
+  amountPaidPaise Int              @default(0) @map("amount_paid_paise")
+  accessGrantedAt DateTime?        @map("access_granted_at") @db.Timestamptz(6)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user            Profile          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  redemptions     CouponRedemption[]
+  @@unique([userId, courseId])
+  @@index([userId, status])
+  @@map("enrollments")
+}
+
+model Coupon {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId        String             @map("course_id") @db.Uuid
+  codeHash        String             @unique @map("code_hash")
+  discountPercent Int                @map("discount_percent")
+  maxRedemptions  Int?               @map("max_redemptions")
+  redemptionCount Int                @default(0) @map("redemption_count")
+  startsAt        DateTime?          @map("starts_at") @db.Timestamptz(6)
+  endsAt          DateTime?          @map("ends_at") @db.Timestamptz(6)
+  active          Boolean            @default(true)
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  course          Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  redemptions     CouponRedemption[]
+  @@index([courseId, active, startsAt, endsAt])
+  @@map("coupons")
+}
+
+model CouponRedemption {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  couponId     String     @map("coupon_id") @db.Uuid
+  userId       String     @map("user_id") @db.Uuid
+  enrollmentId String     @map("enrollment_id") @db.Uuid
+  redeemedAt   DateTime   @default(now()) @map("redeemed_at") @db.Timestamptz(6)
+  coupon       Coupon     @relation(fields: [couponId], references: [id], onDelete: Restrict)
+  user         Profile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Restrict)
+  @@unique([couponId, userId])
+  @@map("coupon_redemptions")
+}
+
+model CouponRedemptionAttempt {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  attemptedAt DateTime @default(now()) @map("attempted_at") @db.Timestamptz(6)
+  user        Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, attemptedAt])
+  @@map("coupon_redemption_attempts")
+}
+
+model LessonProgress {
+  userId       String    @map("user_id") @db.Uuid
+  lessonId     String    @map("lesson_id") @db.Uuid
+  completedAt  DateTime? @map("completed_at") @db.Timestamptz(6)
+  lastViewedAt DateTime? @map("last_viewed_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user         Profile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson       Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  @@id([userId, lessonId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+model Order {
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String      @map("user_id") @db.Uuid
+  courseId       String      @map("course_id") @db.Uuid
+  amountPaise    Int         @map("amount_paise")
+  currency       String      @default("INR") @db.Char(3)
+  status         OrderStatus @default(pending)
+  idempotencyKey String      @unique @map("idempotency_key")
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user           Profile     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  course         Course      @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  attempts       PaymentAttempt[]
+  webhookEvents  PaymentWebhookEvent[]
+  @@index([userId, createdAt])
+  @@map("orders")
+}
+
+model PaymentAttempt {
+  id                String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId           String               @map("order_id") @db.Uuid
+  provider          String
+  providerPaymentId String?              @map("provider_payment_id")
+  status            PaymentAttemptStatus @default(created)
+  amountPaise       Int                  @map("amount_paise")
+  currency          String               @default("INR") @db.Char(3)
+  createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  order             Order                @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  @@unique([provider, providerPaymentId])
+  @@map("payment_attempts")
+}
+
+model PaymentWebhookEvent {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider        String
+  providerEventId String   @map("provider_event_id")
+  eventType       String   @map("event_type")
+  orderId         String?  @map("order_id") @db.Uuid
+  payloadSha256   String   @map("payload_sha256")
+  processedAt     DateTime? @map("processed_at") @db.Timestamptz(6)
+  receivedAt      DateTime @default(now()) @map("received_at") @db.Timestamptz(6)
+  order           Order?   @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  @@unique([provider, providerEventId])
+  @@map("payment_webhook_events")
+}
+
+model AuditEvent {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  eventType   String   @map("event_type")
+  targetType  String   @map("target_type")
+  targetId    String?  @map("target_id") @db.Uuid
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  @@index([eventType, createdAt])
+  @@map("audit_events")
+}
