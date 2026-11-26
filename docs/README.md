@@ -2,6 +2,8 @@
 
 ## Purpose
 
+**Current V1 decision:** Supabase provides Auth, PostgreSQL, RLS, Edge Functions, and Storage. Prisma is retained as a typed server-side ORM; Supabase SQL migrations are the single schema source of truth. See [Supabase implementation handoff](SUPABASE-IMPLEMENTATION.md). Earlier NestJS and no-Prisma recommendations are superseded.
+
 Build one NxGenVarsity learning product that brings together the existing Cybersecurity and Data Engineering & MLOps courses. A learner has one account, a shared dashboard, consistent navigation, course-specific learning experiences, and paid course access.
 
 The present repositories are valuable content sources, not the production architecture: both are static HTML/CSS/JavaScript applications with demo-only browser storage. The unified product will migrate their course data and assets into a new application with a server-side API and database.

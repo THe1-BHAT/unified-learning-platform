@@ -2,7 +2,7 @@
 
 ## Version 1 data platform
 
-Supabase PostgreSQL is the source of truth for users, entitlements, coupon redemption, and learning records. Supabase Auth owns authentication identities in auth.users; application tables in the public schema reference that user ID. Store timestamps in UTC, use UUID primary keys, and create reproducible SQL migrations under supabase/migrations/. Browser localStorage is never a source of truth for paid access.
+Supabase PostgreSQL is the source of truth for identities, entitlements, coupon redemption, payment records, and learning records. Supabase Auth owns authentication identities in auth.users; application tables in the public schema reference that user ID. Store timestamps in UTC and use UUID primary keys. Supabase SQL migrations under supabase/migrations/ are authoritative; Prisma is synchronized from them for typed server-side access. Browser localStorage is never a source of truth for authentication or paid access.
 
     Auth user ── 1:1 ── Profile
         │

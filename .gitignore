@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+generated/prisma/
+tsconfig.tsbuildinfo
+.env
+.env.*
+!.env.example
+supabase/.temp/
+npm-debug.log*

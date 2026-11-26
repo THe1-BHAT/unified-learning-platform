@@ -2,9 +2,9 @@
 
 ## Version 1 decision
 
-Version 1 uses **Supabase as the single backend platform**. Supabase provides PostgreSQL, Auth, Storage, database migrations, Row Level Security (RLS), and Edge Functions. This deliberately replaces the earlier Next.js + NestJS + Prisma + Redis proposal: we will not build two competing backends.
+Version 1 uses **Supabase** for PostgreSQL, Auth, Storage, RLS, SQL migrations, and Edge Functions. **Prisma is retained as a server-only typed ORM** in the Next.js integration app; Supabase SQL migrations remain the only schema migration history. We are not adding NestJS, Redis, or a second API service.
 
-The current static site remains the content prototype. It will call Supabase only for authenticated learner state and protected access; public course pages may remain static during the migration.
+The current static site remains intact as the content prototype. A minimal Next.js integration scaffold now provides the OAuth callback, session refresh, and trusted server-side access helpers; the existing login UI and glass styling are unchanged.
 
     Browser / static learning app
       │ Supabase Auth session
@@ -23,6 +23,7 @@ The current static site remains the content prototype. It will call Supabase onl
 | Supabase Auth | Authenticate users and maintain sessions | Grant course access by itself |
 | PostgreSQL + RLS | Store durable data and constrain user-level reads/writes | Trust client-provided user IDs or roles |
 | Edge Function / RPC | Validate and atomically redeem coupons, check entitlement, create signed URLs | Expose service-role credentials to the browser |
+| Prisma in Next.js server code | Typed trusted server-side queries | Run in the browser or replace RLS authorization checks |
 | Private Storage | Store protected PDFs/assets | Serve protected files from public URLs |
 
 ## Authentication and authorization
@@ -34,6 +35,7 @@ The current static site remains the content prototype. It will call Supabase onl
 - The browser may read an active enrollment for the signed-in user, but cannot insert or activate an enrollment directly.
 - Coupon redemption, admin changes, and signed download creation run only in an Edge Function or a carefully permissioned SQL RPC.
 - Keep Supabase service-role keys server-side only. Commit only environment-variable names in .env.example.
+- Prisma uses a private server-only database user; because it can bypass RLS, every Prisma-backed operation must independently verify the current user and permissions.
 
 ## Entitlement rule
 
@@ -54,7 +56,7 @@ The redemption operation is a single database transaction:
 5. Record the immutable redemption and increment the usage count.
 6. Commit, or roll back every change on failure.
 
-Rate-limit coupon redemption by authenticated user and IP at the Edge Function boundary. Log redemption attempts without storing coupon plaintext.
+Rate-limit coupon redemption by authenticated user at the Edge Function boundary. Add an IP-based limit at deployment/API-gateway level. Log redemption attempts without storing coupon plaintext.
 
 ## Deployment and operations
 
@@ -67,4 +69,4 @@ Rate-limit coupon redemption by authenticated user and IP at the Edge Function b
 
 ## Future boundary
 
-A separate API service can be introduced later if integrations, complex billing, or scale require it. Until then, do not add NestJS, Prisma, or a second database-access layer. Real payment processing is not part of version 1: the UI displays ₹2,500, while valid 100%-discount coupons are the only automated access mechanism.
+A separate API service can be introduced later if integrations or scale require it. Live payment processing remains disabled until a provider is selected and its signed webhook is implemented. V1 includes payment-ready order and attempt records; only verified server-side payment evidence may activate an enrollment.

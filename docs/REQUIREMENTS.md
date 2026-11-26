@@ -18,7 +18,7 @@ Offer Cybersecurity and Data Engineering & MLOps as courses inside one coherent 
 - The catalog displays both courses with a price label of **₹2,500** per course.
 - A learner may preview explicitly public material only; protected lessons, labs, downloads, quizzes, and progress require an active enrollment.
 - The platform has an explicit course-access state: `active`, `pending_payment`, `expired`, or `revoked`.
-- Real payment processing is out of scope for version 1. The UI may display “₹2,500” and a clearly labelled “Payment integration coming soon” state, but it must not treat a price label as payment confirmation.
+- Live payment processing stays disabled until a provider is selected and its signed webhook is implemented. V1 includes payment-ready order and attempt records; the UI may show the course price and a clearly labelled coming-soon state, but must not treat a price label or browser return as payment confirmation.
 
 ### Coupon access
 
