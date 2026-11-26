@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "NxGenVarsity",
-  description: "Unified learning platform",
+	title: "NXGENVARSITY × PRERANA",
+	description: "Learn, explore and excel in the world of technology.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

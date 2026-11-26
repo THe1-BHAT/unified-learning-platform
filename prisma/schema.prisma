@@ -54,12 +54,20 @@ enum PaymentAttemptStatus {
   @@map("payment_attempt_status")
 }
 
+enum CoinRewardType {
+  signup
+  module_completion
+  quiz_completion
+  @@map("coin_reward_type")
+}
+
 model Profile {
   id           String             @id @db.Uuid
   email        String?            @unique
   fullName     String?            @map("full_name")
   avatarUrl    String?            @map("avatar_url")
   role         ProfileRole        @default(learner)
+  showOnLeaderboard Boolean       @default(false) @map("show_on_leaderboard")
   createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
   enrollments  Enrollment[]
@@ -67,6 +75,10 @@ model Profile {
   redemptionAttempts CouponRedemptionAttempt[]
   progress     LessonProgress[]
   orders       Order[]
+  wallet       CoinWallet?
+  coinTransactions CoinTransaction[]
+  moduleCompletions ModuleCompletion[]
+  quizAttempts QuizAttempt[]
   @@map("profiles")
 }
 
@@ -95,6 +107,8 @@ model CourseModule {
   position Int
   course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessons  Lesson[]
+  completions ModuleCompletion[]
+  quizzes Quiz[]
   @@unique([courseId, slug])
   @@unique([courseId, position])
   @@map("course_modules")
@@ -196,6 +210,83 @@ model LessonProgress {
   @@id([userId, lessonId])
   @@index([lessonId])
   @@map("lesson_progress")
+}
+
+model CoinWallet {
+  userId    String   @id @map("user_id") @db.Uuid
+  balance   BigInt   @default(0)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([balance(sort: Desc), userId], map: "coin_wallets_leaderboard_idx")
+  @@map("coin_wallets")
+}
+
+model CoinTransaction {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String         @map("user_id") @db.Uuid
+  rewardType     CoinRewardType @map("reward_type")
+  amount         Int
+  referenceId    String         @map("reference_id") @db.Uuid
+  idempotencyKey String         @map("idempotency_key")
+  balanceAfter   BigInt         @map("balance_after")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  user           Profile        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, idempotencyKey])
+  @@index([userId, createdAt(sort: Desc)], map: "coin_transactions_user_created_idx")
+  @@map("coin_transactions")
+}
+
+model ModuleCompletion {
+  userId      String       @map("user_id") @db.Uuid
+  moduleId    String       @map("module_id") @db.Uuid
+  completedAt DateTime     @default(now()) @map("completed_at") @db.Timestamptz(6)
+  user        Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module      CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  @@id([userId, moduleId])
+  @@index([moduleId])
+  @@map("module_completions")
+}
+
+model Quiz {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId       String         @map("module_id") @db.Uuid
+  slug           String
+  title          String
+  passingPercent Int            @default(70) @map("passing_percent") @db.SmallInt
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  module         CourseModule   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions      QuizQuestion[]
+  attempts       QuizAttempt[]
+  @@unique([moduleId, slug])
+  @@index([moduleId])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId         String @map("quiz_id") @db.Uuid
+  prompt         String
+  options        Json
+  correctOption  Int    @map("correct_option") @db.SmallInt
+  position       Int
+  quiz           Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  @@unique([quizId, position])
+  @@index([quizId], map: "quiz_questions_quiz_idx")
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  quizId       String   @map("quiz_id") @db.Uuid
+  scorePercent Int      @map("score_percent") @db.SmallInt
+  passed       Boolean
+  answers      Json
+  submittedAt  DateTime @default(now()) @map("submitted_at") @db.Timestamptz(6)
+  user         Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz         Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  @@index([userId, quizId, submittedAt(sort: Desc)], map: "quiz_attempts_user_quiz_time_idx")
+  @@map("quiz_attempts")
 }
 
 model Order {

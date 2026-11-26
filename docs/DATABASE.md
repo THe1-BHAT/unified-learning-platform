@@ -73,6 +73,10 @@ Enable RLS on every exposed application table.
 
 RLS controls database rows, not an already-public file URL. Store protected PDFs and assets in a private Supabase Storage bucket. A protected download request must first verify an active enrollment in server-side code, then return a short-lived signed URL.
 
+## Learner rewards
+
+New profiles receive 50 coins inside the profile-creation transaction. Completing every lesson in an enrolled module records one module completion and awards 10 coins. A complete quiz submission is scored against answer keys stored in PostgreSQL and awards 20 coins once per learner and quiz. Progress writes and quiz submissions go through authenticated SQL RPCs. Clients cannot write wallet balances or ledger rows. Unique learner/reward keys and wallet row locks keep parallel retries safe. The leaderboard RPC returns only learners who opted in, uses a bounded page size, and sorts by the indexed wallet balance.
+
 ## Required indexes and constraints
 
 - courses slug unique
