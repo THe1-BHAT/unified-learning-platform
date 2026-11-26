@@ -10,13 +10,13 @@ Prerequisites: Node.js, npm, and Docker Desktop for the local Supabase service.
 
 ```powershell
 npm install
-Copy-Item .env.example .env.local
+Copy-Item .env.example web/.env.local
 npx supabase start
 npx supabase db reset
 npm run dev
 ```
 
-When Supabase starts, copy its API URL and `anon` key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`. Then open [http://localhost:3000/login](http://localhost:3000/login). Keep `.env.local` private; it is ignored by Git. For hosted Supabase setup and OAuth redirect configuration, see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md).
+When Supabase starts, copy its API URL and `anon` key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `web/.env.local` (Next.js runs from `web/`). Then open [http://localhost:3000/login](http://localhost:3000/login). Keep `.env.local` private; it is ignored by Git. For hosted Supabase setup and OAuth redirect configuration, see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md).
 
 ## Repository structure
 
