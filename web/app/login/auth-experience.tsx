@@ -27,12 +27,12 @@ const configuredProviders = new Set<OAuthProvider>(
 );
 
 function safeNextPath(value: string | null) {
-  if (!value) return "/studio/";
+  if (!value) return "/dashboard";
   try {
     const candidate = new URL(value, window.location.origin);
-    return candidate.origin === window.location.origin ? `${candidate.pathname}${candidate.search}${candidate.hash}` : "/studio/";
+    return candidate.origin === window.location.origin ? `${candidate.pathname}${candidate.search}${candidate.hash}` : "/dashboard";
   } catch {
-    return "/studio/";
+    return "/dashboard";
   }
 }
 
@@ -45,7 +45,7 @@ export default function AuthExperience() {
   const [loading, setLoading] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
-  const [nextPath, setNextPath] = useState("/studio/");
+  const [nextPath, setNextPath] = useState("/dashboard");
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -121,7 +121,7 @@ export default function AuthExperience() {
           password,
           options: {
             data: { full_name: fullName },
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/studio/?welcome=1")}`,
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/dashboard?welcome=1")}`,
           },
         });
         if (error) throw error;

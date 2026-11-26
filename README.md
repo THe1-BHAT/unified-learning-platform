@@ -4,19 +4,19 @@ This repository brings the Cybersecurity and Data Engineering & MLOps learning e
 
 ## Run the real website locally
 
-The Next.js site in `web/` is the application entry point. It includes Supabase email/password sign-in, account creation, password recovery, and a protected learner experience. After signing in, learners open `/studio/` for the Cybersecurity and Data Engineering & MLOps lessons, labs, and resources; `/dashboard` contains account and rewards details. Course progress in the existing studio is still stored in the browser, while account authentication is handled by Supabase.
+The Next.js site in `web/` is the production application entry point. It includes Supabase email/password sign-in, account creation, password recovery, a database-backed course catalog, account-scoped lesson progress, protected course content, server-scored quizzes, and learning rewards. After signing in, learners land on `/dashboard`; the older browser-only prototype remains in `app/dist/` for content review and is not the production app.
 
 Prerequisites: Node.js, npm, and Docker Desktop for the local Supabase service.
 
 ```powershell
-npm install
+npm.cmd install
 Copy-Item .env.example web/.env.local
-npx supabase start
-npx supabase db reset
-npm run dev
+npx.cmd supabase start
+npx.cmd supabase migration up --local
+npm.cmd run dev
 ```
 
-When Supabase starts, copy its API URL and `anon` key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `web/.env.local` (Next.js runs from `web/`). Then open [http://localhost:3000/login](http://localhost:3000/login); after signing in, the site opens at `/studio/`. Keep `.env.local` private; it is ignored by Git. OAuth buttons stay disabled until the provider is configured in Supabase Auth and its ID (such as `google`) is added to `NEXT_PUBLIC_SUPABASE_AUTH_PROVIDERS`. For hosted Supabase setup and OAuth redirect configuration, see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md).
+When Supabase starts, copy its API URL and `anon` key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `web/.env.local` (Next.js runs from `web/`). Then open [http://localhost:3000/login](http://localhost:3000/login); after signing in, the site opens at `/dashboard`. Keep `.env.local` private; it is ignored by Git. OAuth buttons stay disabled until the provider is configured in Supabase Auth and its ID (such as `google`) is added to `NEXT_PUBLIC_SUPABASE_AUTH_PROVIDERS`. Production payment processing is not enabled until a provider and credentials are selected. For hosted Supabase setup and OAuth redirect configuration, see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md).
 
 ## Repository structure
 
