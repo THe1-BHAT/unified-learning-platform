@@ -16,7 +16,7 @@ npx supabase db reset
 npm run dev
 ```
 
-When Supabase starts, copy its API URL and `anon` key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `web/.env.local` (Next.js runs from `web/`). Then open [http://localhost:3000/login](http://localhost:3000/login). Keep `.env.local` private; it is ignored by Git. For hosted Supabase setup and OAuth redirect configuration, see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md).
+When Supabase starts, copy its API URL and `anon` key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `web/.env.local` (Next.js runs from `web/`). Then open [http://localhost:3000/login](http://localhost:3000/login). Keep `.env.local` private; it is ignored by Git. OAuth buttons stay disabled until the provider is configured in Supabase Auth and its ID (such as `google`) is added to `NEXT_PUBLIC_SUPABASE_AUTH_PROVIDERS`. For hosted Supabase setup and OAuth redirect configuration, see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md).
 
 ## Repository structure
 

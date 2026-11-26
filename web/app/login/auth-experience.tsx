@@ -19,6 +19,12 @@ const providers: { id: OAuthProvider; label: string; mark: ReactNode }[] = [
 ];
 
 const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+const configuredProviders = new Set<OAuthProvider>(
+  (process.env.NEXT_PUBLIC_SUPABASE_AUTH_PROVIDERS ?? "")
+    .split(",")
+    .map((provider) => provider.trim())
+    .filter((provider): provider is OAuthProvider => providers.some((item) => item.id === provider)),
+);
 
 function safeNextPath(value: string | null) {
   if (!value) return "/dashboard";
@@ -143,6 +149,11 @@ export default function AuthExperience() {
   async function signInWith(provider: OAuthProvider) {
     if (!configured) {
       setFeedback({ kind: "error", text: "Connect Supabase before enabling social sign-in." });
+      return;
+    }
+    if (!configuredProviders.has(provider)) {
+      const label = providers.find((item) => item.id === provider)?.label ?? provider;
+      setFeedback({ kind: "info", text: `${label} sign-in is not configured for this project. Use email and password or configure this provider in Supabase Auth.` });
       return;
     }
     setFeedback(null);
@@ -285,12 +296,12 @@ export default function AuthExperience() {
               <div className="divider"><span /> <span>or continue with</span> <span /></div>
               <div className="social-row" aria-label="Continue with a social account">
                 {providers.map((provider) => (
-                  <button key={provider.id} type="button" className="social-button" aria-label={`Continue with ${provider.label}`} title={`Continue with ${provider.label}`} disabled={loading || !configured} onClick={() => signInWith(provider.id)}>
+                  <button key={provider.id} type="button" className="social-button" aria-label={configuredProviders.has(provider.id) ? `Continue with ${provider.label}` : `${provider.label} sign-in is not configured`} title={configuredProviders.has(provider.id) ? `Continue with ${provider.label}` : `Configure ${provider.label} OAuth in Supabase to enable`} disabled={loading || !configured || !configuredProviders.has(provider.id)} onClick={() => signInWith(provider.id)}>
                     {provider.mark}<span className="social-tooltip">{provider.label}</span>
                   </button>
                 ))}
               </div>
-              <p className="social-setup-hint">Social sign-in requires that provider to be enabled in Supabase Auth.</p>
+              <p className="social-setup-hint">{configuredProviders.size ? `Configured social sign-in: ${providers.filter((provider) => configuredProviders.has(provider.id)).map((provider) => provider.label).join(", ")}.` : "Social sign-in is not configured for this project. Use email and password, or configure an OAuth provider in Supabase Auth."}</p>
             </>
           )}
 
