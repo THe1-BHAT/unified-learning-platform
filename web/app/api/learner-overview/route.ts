@@ -31,8 +31,6 @@ export async function GET(request: NextRequest) {
     }),
   ]);
 
-  if (statsResult.error) return unavailable();
-
   return NextResponse.json({
     user_id: user.id,
     name: profileResult.data?.full_name || user.user_metadata.full_name || user.email?.split("@")[0] || "Learner",
