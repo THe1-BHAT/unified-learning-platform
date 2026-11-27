@@ -383,13 +383,35 @@ export default function CheckoutExperience({
         <div className="auth-card checkout-card">
           <div className="card-glint" aria-hidden="true" />
 
-          <div className="card-heading">
-            <p className="welcome-line">SINGLE CHECKOUT GATEWAY</p>
-            <h2>Redeem coupon or pay</h2>
-            <p className="card-subtitle">
-              One-time fee of ₹2,500 for everything, or ₹0 with a student coupon.
-            </p>
-          </div>
+          {isUnlocked ? (
+            <div className="paid-status-panel">
+              <div className="subscribed-confetti" aria-hidden="true">✓</div>
+              <p className="welcome-line">SUBSCRIPTION ACTIVE</p>
+              <h2>Payment Successful</h2>
+              <p className="card-subtitle">
+                Your unified all-access pass is active for both <strong>Cybersecurity</strong> and <strong>Data Engineering &amp; MLOps</strong>.
+              </p>
+              <div className="subscribed-actions" style={{ marginTop: "22px" }}>
+                <button type="button" className="primary-submit" onClick={handleDownloadInvoice}>
+                  Download Invoice ↓
+                </button>
+                <a className="invoice-download-btn" style={{ textDecoration: "none" }} href="/studio/">
+                  Open Learning Studio <span aria-hidden="true">→</span>
+                </a>
+                <a className="subscribed-secondary-link" href="/dashboard">
+                  Go to Dashboard
+                </a>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="card-heading">
+                <p className="welcome-line">SINGLE CHECKOUT GATEWAY</p>
+                <h2>Redeem coupon or pay</h2>
+                <p className="card-subtitle">
+                  One-time fee of ₹2,500 for everything, or ₹0 with a student coupon.
+                </p>
+              </div>
 
           <form className="coupon-box" onSubmit={handleCouponSubmit} noValidate>
             <label className="field-label" htmlFor="coupon-code-input">
@@ -553,6 +575,8 @@ export default function CheckoutExperience({
                   : "Pay ₹2,500 One-time (Demo)"}
             </button>
           </form>
+            </>
+          )}
         </div>
       </section>
 

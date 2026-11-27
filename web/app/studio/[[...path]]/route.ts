@@ -69,12 +69,54 @@ export async function GET(
       const displayName = String(user.user_metadata.full_name || user.email?.split("@")[0] || "Learner").trim();
       const initial = Array.from(displayName)[0]?.toLocaleUpperCase() || "L";
       const safeName = escapeHtml(displayName);
-      const accountPill = `<a class="session-account" href="/dashboard" aria-label="Account settings for ${safeName}"><span class="account-avatar" aria-hidden="true">${escapeHtml(initial)}</span><span class="account-copy"><strong>${safeName}</strong><small>Account settings</small></span><span class="account-chevron" aria-hidden="true">↗</span></a>`;
-      const signOutForm = `<form action="/auth/signout" method="post" class="session-signout-form"><button type="submit" class="session-account session-signout">Sign out</button></form>`;
+      const safeInitial = escapeHtml(initial);
 
-      const topRightActions = hasActiveEnrollment
-        ? `<div class="session-actions">${accountPill}${signOutForm}</div>`
-        : `<div class="session-actions"><a class="session-checkout" href="/checkout">Subscribe</a>${accountPill}${signOutForm}</div>`;
+      const topRightActions = `
+        <template id="nxv-account-menu-template">
+          <div id="nxv-account-menu" class="nxv-account-menu">
+            <button type="button" class="nxv-avatar-trigger" aria-label="Account menu for ${safeName}" aria-haspopup="true">
+              <span>${safeInitial}</span>
+            </button>
+            <div class="nxv-account-dropdown" role="menu">
+              <a class="nxv-dropdown-profile" href="/dashboard" role="menuitem">
+                <span class="nxv-dropdown-avatar" aria-hidden="true">${safeInitial}</span>
+                <span class="nxv-dropdown-identity">
+                  <strong>${safeName}</strong>
+                  <small>Account settings</small>
+                </span>
+              </a>
+              <div class="nxv-dropdown-items">
+                <a class="nxv-dropdown-item nxv-dropdown-sub" href="/checkout" role="menuitem">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 12 10 5 10-5"/><path d="m2 17 10 5 10-5"/></svg>
+                  <span>Subscription</span>
+                </a>
+                <form action="/auth/signout" method="post" class="nxv-signout-form">
+                  <button type="submit" class="nxv-dropdown-item nxv-dropdown-signout" role="menuitem">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Sign out</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </template>
+        <script>
+          (function () {
+            function mountAccountMenu() {
+              var target = document.querySelector(".topbar .top-right");
+              if (!target || target.querySelector("#nxv-account-menu")) return;
+              var tpl = document.getElementById("nxv-account-menu-template");
+              if (tpl && tpl.content) {
+                target.appendChild(tpl.content.cloneNode(true));
+              }
+            }
+            mountAccountMenu();
+            window.addEventListener("hashchange", function () { setTimeout(mountAccountMenu, 0); });
+            var observer = new MutationObserver(mountAccountMenu);
+            var appRoot = document.getElementById("app");
+            if (appRoot) observer.observe(appRoot, { childList: true });
+          })();
+        </script>`;
 
       const courseGateScript = hasActiveEnrollment
         ? ""
@@ -130,11 +172,24 @@ export async function GET(
       body = fileContents.toString("utf8").replace(
         "<head>",
         `<head><base href="/studio/"><style>
-          .profile,.site-footer a[href="#login"]{display:none!important}
-          .session-actions{position:fixed;z-index:10000;top:16px;right:20px;display:flex;align-items:center;gap:8px}
-          .session-signout-form{margin:0}
-          .session-account,.session-checkout{padding:9px 13px;border:1px solid #d6e2dd;border-radius:999px;background:#fff;color:#173d48;text-decoration:none;font:600 12px Manrope,Arial,sans-serif;box-shadow:0 3px 14px #173d4817;cursor:pointer}
-          .session-checkout{border-color:#377e78;background:#377e78;color:#fff}
+          .profile,.site-footer a[href="#login"],.session-account,.topbar .top-right .eyebrow{display:none!important}
+          .topbar .top-right{display:flex;align-items:center;justify-content:flex-end}
+          .nxv-account-menu{position:relative;z-index:10000;font-family:Manrope,Arial,sans-serif}
+          .nxv-avatar-trigger{width:42px;height:42px;display:grid;place-items:center;padding:0;border:2px solid #ffffff;border-radius:50%;background:linear-gradient(145deg,#1d6b5e,#155248);color:#ffffff;font:700 15px Manrope,Arial,sans-serif;box-shadow:0 4px 14px rgba(21,82,72,.22);cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+          .nxv-account-menu:hover .nxv-avatar-trigger,.nxv-account-menu:focus-within .nxv-avatar-trigger{transform:scale(1.03);box-shadow:0 6px 18px rgba(21,82,72,.28)}
+          .nxv-account-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:236px;padding:12px;border:1px solid rgba(255,255,255,.85);border-radius:20px;background:rgba(246,250,248,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 44px rgba(18,45,42,.16),inset 0 1px 0 rgba(255,255,255,.9);opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .18s ease,transform .18s ease,visibility .18s}
+          .nxv-account-menu:hover .nxv-account-dropdown,.nxv-account-menu:focus-within .nxv-account-dropdown{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+          .nxv-account-dropdown::before{content:"";position:absolute;top:-12px;left:0;right:0;height:12px}
+          .nxv-dropdown-profile{display:flex;align-items:center;gap:11px;padding:4px 4px 11px;text-decoration:none;color:#173d48}
+          .nxv-dropdown-avatar{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#1d6b5e,#155248);color:#fff;font:700 14px Manrope,Arial,sans-serif}
+          .nxv-dropdown-identity{min-width:0;display:flex;flex-direction:column}
+          .nxv-dropdown-identity strong{font:700 14px/1.25 Manrope,Arial,sans-serif;color:#152e35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          .nxv-dropdown-identity small{font:500 12px/1.25 Manrope,Arial,sans-serif;color:#62787d}
+          .nxv-dropdown-items{display:flex;flex-direction:column;gap:6px;padding-top:6px;border-top:1px solid rgba(23,61,72,.08)}
+          .nxv-signout-form{margin:0}
+          .nxv-dropdown-item{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.75);border-radius:12px;background:rgba(255,255,255,.72);color:#173d48;text-decoration:none;font:600 13px Manrope,Arial,sans-serif;cursor:pointer;text-align:left;transition:background .15s ease,border-color .15s ease}
+          .nxv-dropdown-sub:hover,.nxv-dropdown-sub:focus-visible{background:rgba(209,237,225,.82);border-color:rgba(55,126,120,.28)}
+          .nxv-dropdown-signout:hover,.nxv-dropdown-signout:focus-visible{background:rgba(255,255,255,.98);border-color:rgba(23,61,72,.16)}
           .nxv-paywall[hidden]{display:none}
           .nxv-paywall{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:20px;background:rgba(15,31,38,.52);backdrop-filter:blur(6px)}
           .nxv-paywall-card{width:100%;max-width:440px;padding:30px 26px;border-radius:22px;background:#fff;color:#173d48;box-shadow:0 24px 60px rgba(0,0,0,.25);text-align:center;font-family:Manrope,Arial,sans-serif}
@@ -144,7 +199,6 @@ export async function GET(
           .nxv-paywall-actions{display:flex;flex-direction:column;gap:10px}
           .nxv-paywall-btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:999px;background:#377e78;color:#fff;font-weight:700;font-size:14px;text-decoration:none}
           .nxv-paywall-close{border:0;background:transparent;color:#526870;font:600 13px Manrope,Arial,sans-serif;cursor:pointer;padding:6px}
-          @media(max-width:600px){.session-actions,.session-account{top:14px;right:14px}}
         </style>`,
       ).replace(
         "</head>",
