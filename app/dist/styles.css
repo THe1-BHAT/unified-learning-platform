@@ -1745,6 +1745,7 @@ body::before {
 .learner-leaderboard-toggle:hover { background: #e6f3ed; }
 .learner-leaderboard-toggle:disabled { opacity: .55; cursor: wait; }
 .learner-leaderboard-privacy { margin: 7px 1px 0; color: #909c99; font-size: 9px; }
+.learner-leaderboard-feedback { margin: 8px 1px 0; color: #a64747; font-size: 11px; line-height: 1.45; }
 
 .welcome-bonus-dialog { width: min(92vw, 520px); max-width: 520px; padding: 0; overflow: visible; border: 0; background: transparent; color: #183d46; }
 .welcome-bonus-dialog::backdrop { background: rgba(14, 37, 44, .58); backdrop-filter: blur(7px); }

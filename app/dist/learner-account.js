@@ -110,6 +110,48 @@
     }
   }
 
+  async function setLeaderboardPreference(toggle) {
+    const previousLabel = toggle.textContent.trim();
+    const shouldJoin = toggle.dataset.leaderboardOptin === "true";
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12000);
+    toggle.disabled = true;
+    toggle.textContent = shouldJoin ? "Joining…" : "Leaving…";
+    document.querySelector(".learner-leaderboard-feedback")?.remove();
+
+    try {
+      const response = await fetch(api, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ show_on_leaderboard: shouldJoin }),
+        signal: controller.signal,
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || typeof result.show_on_leaderboard !== "boolean") {
+        throw new Error(result.error || "Could not update your leaderboard setting.");
+      }
+
+      if (latest) {
+        latest.show_on_leaderboard = result.show_on_leaderboard;
+        renderOverview();
+      }
+      void loadOverview();
+    } catch (error) {
+      toggle.disabled = false;
+      toggle.textContent = previousLabel;
+      const feedback = document.createElement("p");
+      feedback.className = "learner-leaderboard-feedback";
+      feedback.setAttribute("role", "status");
+      feedback.textContent = error instanceof Error && error.name === "AbortError"
+        ? "That took too long. Check your connection and try again."
+        : error instanceof Error ? error.message : "Could not update your leaderboard setting. Try again.";
+      toggle.insertAdjacentElement("afterend", feedback);
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
   function showWelcome() {
     if (document.querySelector("#welcome-bonus")) return;
     const firstName = String(latest?.name || "Learner").trim().split(/\s+/)[0];
@@ -152,9 +194,7 @@
 
     const toggle = target?.closest("[data-leaderboard-optin]");
     if (toggle) {
-      toggle.disabled = true;
-      void postActivity({ show_on_leaderboard: toggle.dataset.leaderboardOptin === "true" })
-        .then(() => loadOverview());
+      void setLeaderboardPreference(toggle);
     }
   }, true);
 

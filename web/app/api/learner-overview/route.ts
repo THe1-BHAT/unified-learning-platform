@@ -44,10 +44,16 @@ export async function POST(request: NextRequest) {
   if (!body) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
   if (typeof body.show_on_leaderboard === "boolean") {
-    const { error } = await supabase.from("profiles")
+    const { data: updatedProfile, error } = await supabase.from("profiles")
       .update({ show_on_leaderboard: body.show_on_leaderboard })
-      .eq("id", user.id);
-    if (error) return NextResponse.json({ error: "Could not update leaderboard preference" }, { status: 400 });
+      .eq("id", user.id)
+      .select("show_on_leaderboard")
+      .maybeSingle();
+    if (error || !updatedProfile) {
+      return NextResponse.json({ error: "Your learner profile could not be updated. Please sign out and back in, then try again." }, { status: 400 });
+    }
+
+    return NextResponse.json({ show_on_leaderboard: updatedProfile.show_on_leaderboard });
   }
 
   const activityKey = typeof body.activity_key === "string" ? body.activity_key : null;
