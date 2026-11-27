@@ -63,23 +63,6 @@ export default function CheckoutExperience({
     await fetch("/api/demo-subscribe", { method: "POST" });
   }
 
-  async function handleResetDemoSubscription() {
-    await fetch("/api/demo-subscribe", { method: "DELETE" });
-    setDemoUnlocked(false);
-    setCourses((prev) =>
-      prev.map((course) =>
-        course.enrollmentSource === "demo"
-          ? { ...course, enrolled: false, enrollmentStatus: null, enrollmentSource: null }
-          : course,
-      ),
-    );
-    setShowSubscribedModal(false);
-    setCouponCode("");
-    setCouponFeedback(null);
-    setPaymentFeedback(null);
-    router.refresh();
-  }
-
   function createInvoice(methodLabel: string, usedCoupon: boolean): InvoiceDetails {
     const now = new Date();
     const code = Math.random().toString(36).slice(2, 7).toUpperCase();
@@ -418,16 +401,6 @@ export default function CheckoutExperience({
                 <a className="subscribed-secondary-link" href="/dashboard">
                   Go to Dashboard
                 </a>
-                {!allEnrolled || courses.some((c) => c.enrollmentSource === "demo") ? (
-                  <button
-                    type="button"
-                    className="subscribed-secondary-link"
-                    style={{ background: "none", border: 0, cursor: "pointer", padding: 0 }}
-                    onClick={handleResetDemoSubscription}
-                  >
-                    Reset demo subscription (test payment again)
-                  </button>
-                ) : null}
               </div>
             </div>
           ) : (
