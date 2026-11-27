@@ -72,32 +72,51 @@ export async function GET(
       const safeInitial = escapeHtml(initial);
 
       const topRightActions = `
-        <div class="nxv-account-menu">
-          <button type="button" class="nxv-avatar-trigger" aria-label="Account menu for ${safeName}" aria-haspopup="true">
-            <span>${safeInitial}</span>
-          </button>
-          <div class="nxv-account-dropdown" role="menu">
-            <a class="nxv-dropdown-profile" href="/dashboard" role="menuitem">
-              <span class="nxv-dropdown-avatar" aria-hidden="true">${safeInitial}</span>
-              <span class="nxv-dropdown-identity">
-                <strong>${safeName}</strong>
-                <small>Account settings</small>
-              </span>
-            </a>
-            <div class="nxv-dropdown-items">
-              <a class="nxv-dropdown-item nxv-dropdown-sub" href="/checkout" role="menuitem">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 12 10 5 10-5"/><path d="m2 17 10 5 10-5"/></svg>
-                <span>Subscription</span>
+        <template id="nxv-account-menu-template">
+          <div id="nxv-account-menu" class="nxv-account-menu">
+            <button type="button" class="nxv-avatar-trigger" aria-label="Account menu for ${safeName}" aria-haspopup="true">
+              <span>${safeInitial}</span>
+            </button>
+            <div class="nxv-account-dropdown" role="menu">
+              <a class="nxv-dropdown-profile" href="/dashboard" role="menuitem">
+                <span class="nxv-dropdown-avatar" aria-hidden="true">${safeInitial}</span>
+                <span class="nxv-dropdown-identity">
+                  <strong>${safeName}</strong>
+                  <small>Account settings</small>
+                </span>
               </a>
-              <form action="/auth/signout" method="post" class="nxv-signout-form">
-                <button type="submit" class="nxv-dropdown-item nxv-dropdown-signout" role="menuitem">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                  <span>Sign out</span>
-                </button>
-              </form>
+              <div class="nxv-dropdown-items">
+                <a class="nxv-dropdown-item nxv-dropdown-sub" href="/checkout" role="menuitem">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 12 10 5 10-5"/><path d="m2 17 10 5 10-5"/></svg>
+                  <span>Subscription</span>
+                </a>
+                <form action="/auth/signout" method="post" class="nxv-signout-form">
+                  <button type="submit" class="nxv-dropdown-item nxv-dropdown-signout" role="menuitem">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Sign out</span>
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>`;
+        </template>
+        <script>
+          (function () {
+            function mountAccountMenu() {
+              var target = document.querySelector(".topbar .top-right");
+              if (!target || target.querySelector("#nxv-account-menu")) return;
+              var tpl = document.getElementById("nxv-account-menu-template");
+              if (tpl && tpl.content) {
+                target.appendChild(tpl.content.cloneNode(true));
+              }
+            }
+            mountAccountMenu();
+            window.addEventListener("hashchange", function () { setTimeout(mountAccountMenu, 0); });
+            var observer = new MutationObserver(mountAccountMenu);
+            var appRoot = document.getElementById("app");
+            if (appRoot) observer.observe(appRoot, { childList: true });
+          })();
+        </script>`;
 
       const courseGateScript = hasActiveEnrollment
         ? ""
@@ -153,8 +172,9 @@ export async function GET(
       body = fileContents.toString("utf8").replace(
         "<head>",
         `<head><base href="/studio/"><style>
-          .profile,.site-footer a[href="#login"],.session-account{display:none!important}
-          .nxv-account-menu{position:fixed;z-index:10000;top:16px;right:24px;font-family:Manrope,Arial,sans-serif}
+          .profile,.site-footer a[href="#login"],.session-account,.topbar .top-right .eyebrow{display:none!important}
+          .topbar .top-right{display:flex;align-items:center;justify-content:flex-end}
+          .nxv-account-menu{position:relative;z-index:10000;font-family:Manrope,Arial,sans-serif}
           .nxv-avatar-trigger{width:42px;height:42px;display:grid;place-items:center;padding:0;border:2px solid #ffffff;border-radius:50%;background:linear-gradient(145deg,#1d6b5e,#155248);color:#ffffff;font:700 15px Manrope,Arial,sans-serif;box-shadow:0 4px 14px rgba(21,82,72,.22);cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
           .nxv-account-menu:hover .nxv-avatar-trigger,.nxv-account-menu:focus-within .nxv-avatar-trigger{transform:scale(1.03);box-shadow:0 6px 18px rgba(21,82,72,.28)}
           .nxv-account-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:236px;padding:12px;border:1px solid rgba(255,255,255,.85);border-radius:20px;background:rgba(246,250,248,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 44px rgba(18,45,42,.16),inset 0 1px 0 rgba(255,255,255,.9);opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .18s ease,transform .18s ease,visibility .18s}
@@ -179,7 +199,6 @@ export async function GET(
           .nxv-paywall-actions{display:flex;flex-direction:column;gap:10px}
           .nxv-paywall-btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:999px;background:#377e78;color:#fff;font-weight:700;font-size:14px;text-decoration:none}
           .nxv-paywall-close{border:0;background:transparent;color:#526870;font:600 13px Manrope,Arial,sans-serif;cursor:pointer;padding:6px}
-          @media(max-width:600px){.nxv-account-menu{top:12px;right:14px}}
         </style>`,
       ).replace(
         "</head>",
