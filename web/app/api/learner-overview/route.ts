@@ -21,9 +21,6 @@ export async function GET(request: NextRequest) {
     ? Math.min(Math.max(requestedOffset, 0), 10000)
     : 0;
 
-  const { error: rewardError } = await supabase.rpc("ensure_my_signup_reward");
-  if (rewardError) return unavailable();
-
   const [walletResult, profileResult, statsResult, leaderboardResult] = await Promise.all([
     supabase.from("coin_wallets").select("balance").eq("user_id", user.id).maybeSingle(),
     supabase.from("profiles").select("full_name, show_on_leaderboard").eq("id", user.id).maybeSingle(),
@@ -34,7 +31,7 @@ export async function GET(request: NextRequest) {
     }),
   ]);
 
-  if (walletResult.error || statsResult.error) return unavailable();
+  if (statsResult.error) return unavailable();
 
   return NextResponse.json({
     user_id: user.id,
