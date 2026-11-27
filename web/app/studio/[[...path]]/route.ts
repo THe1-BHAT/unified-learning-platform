@@ -70,11 +70,28 @@ export async function GET(
       const initial = Array.from(displayName)[0]?.toLocaleUpperCase() || "L";
       const safeName = escapeHtml(displayName);
       const accountPill = `<a class="session-account" href="/dashboard" aria-label="Account settings for ${safeName}"><span class="account-avatar" aria-hidden="true">${escapeHtml(initial)}</span><span class="account-copy"><strong>${safeName}</strong><small>Account settings</small></span><span class="account-chevron" aria-hidden="true">↗</span></a>`;
-      const signOutForm = `<form action="/auth/signout" method="post" class="session-signout-form"><button type="submit" class="session-account session-signout">Sign out</button></form>`;
+      const signOutForm = `<form action="/auth/signout" method="post" class="session-signout-form"><button type="submit" class="session-signout">Sign out</button></form>`;
 
       const subscriptionLink = `<a class="session-checkout" href="/checkout">Subscription</a>`;
 
       const topRightActions = `<div class="session-actions">${subscriptionLink}${accountPill}${signOutForm}</div>`;
+
+      const sidebarSubscriptionScript = `<script>
+        (function () {
+          function ensureSidebarSubscription() {
+            var nav = document.querySelector(".sidebar nav");
+            if (!nav || nav.querySelector("[data-nxv-sub]")) return;
+            var link = document.createElement("a");
+            link.className = "navlink";
+            link.href = "/checkout";
+            link.setAttribute("data-nxv-sub", "1");
+            link.innerHTML = '<span aria-hidden="true">✦</span><span>Subscription</span>';
+            nav.appendChild(link);
+          }
+          ensureSidebarSubscription();
+          window.addEventListener("hashchange", function () { setTimeout(ensureSidebarSubscription, 0); });
+        })();
+      </script>`;
 
       const courseGateScript = hasActiveEnrollment
         ? ""
@@ -131,10 +148,12 @@ export async function GET(
         "<head>",
         `<head><base href="/studio/"><style>
           .profile,.site-footer a[href="#login"]{display:none!important}
-          .session-actions{position:fixed;z-index:10000;top:16px;right:20px;display:flex;align-items:center;gap:8px}
+          .session-actions{position:fixed!important;z-index:10000;top:14px;right:20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+          .session-actions .session-account{position:static!important;top:auto!important;right:auto!important}
           .session-signout-form{margin:0}
-          .session-account,.session-checkout{padding:9px 13px;border:1px solid #d6e2dd;border-radius:999px;background:#fff;color:#173d48;text-decoration:none;font:600 12px Manrope,Arial,sans-serif;box-shadow:0 3px 14px #173d4817;cursor:pointer}
-          .session-checkout{border-color:#377e78;background:#377e78;color:#fff}
+          .session-signout{padding:10px 14px;border:1px solid #d6e2dd;border-radius:999px;background:#fff;color:#173d48;font:600 12px Manrope,Arial,sans-serif;box-shadow:0 3px 14px #173d4817;cursor:pointer}
+          .session-checkout{padding:10px 15px;border:1px solid #377e78;border-radius:999px;background:#377e78;color:#fff;text-decoration:none;font:700 12px Manrope,Arial,sans-serif;box-shadow:0 3px 14px #173d4822}
+          .session-checkout:hover{background:#2d6a65}
           .nxv-paywall[hidden]{display:none}
           .nxv-paywall{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:20px;background:rgba(15,31,38,.52);backdrop-filter:blur(6px)}
           .nxv-paywall-card{width:100%;max-width:440px;padding:30px 26px;border-radius:22px;background:#fff;color:#173d48;box-shadow:0 24px 60px rgba(0,0,0,.25);text-align:center;font-family:Manrope,Arial,sans-serif}
@@ -151,7 +170,7 @@ export async function GET(
         `<script defer src="/studio/learner-account.js?v=2"></script></head>`,
       ).replace(
         "</body>",
-        `${topRightActions}${courseGateScript}</body>`,
+        `${topRightActions}${sidebarSubscriptionScript}${courseGateScript}</body>`,
       );
     }
     return new NextResponse(body, {
