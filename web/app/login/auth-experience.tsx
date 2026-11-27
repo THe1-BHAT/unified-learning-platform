@@ -138,7 +138,8 @@ export default function AuthExperience() {
         return;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Please try again in a moment.";
+      const code = typeof error === "object" && error !== null && "code" in error ? String(error.code) : "";
+      const message = `${code} ${error instanceof Error ? error.message : "Please try again in a moment."}`;
       setFeedback({ kind: "error", text: friendlyAuthError(message) });
     } finally {
       setLoading(false);
@@ -314,6 +315,18 @@ export default function AuthExperience() {
 
 function friendlyAuthError(message: string, fallback?: string) {
   const value = message.toLowerCase();
+  if (value.includes("email_address_not_authorized") || value.includes("email address not authorized")) {
+    return "Supabase cannot send confirmation emails to this address yet. Configure custom SMTP in Supabase Auth to allow public sign-ups.";
+  }
+  if (value.includes("over_email_send_rate_limit") || value.includes("email rate limit exceeded")) {
+    return "The Supabase email limit has been reached. Configure custom SMTP or wait before trying again.";
+  }
+  if (value.includes("database error saving new user") || value.includes("database error creating new user")) {
+    return "Supabase could not create this account. Check the project's Auth and Postgres logs for a profile trigger error.";
+  }
+  if (value.includes("redirect_url_not_allowed") || value.includes("redirect url not allowed")) {
+    return "This site's callback URL is not allowed in Supabase. Add the deployed /auth/callback URL under Authentication URL Configuration.";
+  }
   if (value.includes("invalid login credentials")) return "That email and password combination didn’t match. Try again or reset your password.";
   if (value.includes("email not confirmed")) return "Please confirm your email using the link we sent before signing in.";
   if (value.includes("already registered") || value.includes("already been registered")) return "An account may already use this email. Try logging in instead.";
