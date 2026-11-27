@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowserClient, setRememberPreference } from "../../lib/supabase/browser";
+import { AuthShell } from "../shared/auth-shell";
 import LearningIllustration from "./learning-illustration";
 import "./login.css";
 
@@ -183,11 +184,7 @@ export default function AuthExperience() {
   }
 
   return (
-    <main className="auth-shell">
-      <div className="auth-ambient auth-ambient-one" aria-hidden="true" />
-      <div className="auth-ambient auth-ambient-two" aria-hidden="true" />
-      <div className="auth-grid-glow" aria-hidden="true" />
-
+    <AuthShell>
       <section className="brand-panel" aria-label="NxGenVarsity and Prerana">
         <div className="brand-topline">
           <a className="brand-lockup" href="/" aria-label="NxGenVarsity and Prerana home">
@@ -313,7 +310,7 @@ export default function AuthExperience() {
         </div>
         <p className="form-panel-footnote">By continuing, you agree to learn with curiosity and respect.</p>
       </section>
-    </main>
+    </AuthShell>
   );
 }
 

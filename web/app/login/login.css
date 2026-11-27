@@ -21,33 +21,71 @@
 /* Light liquid-glass treatment for the authentication experience. */
 .auth-shell {
   color-scheme: light;
+  --pointer-x: 0px;
+  --pointer-y: 0px;
+  --pointer-x-reverse: 0px;
+  --pointer-y-reverse: 0px;
+  --pointer-glow-x: 0px;
+  --pointer-glow-y: 0px;
+  --pointer-glow-opacity: 0;
   --auth-ink: #21343e;
   --auth-muted: #738087;
   --auth-cyan: #377e78;
   --auth-violet: #8f88bd;
   color: var(--auth-ink);
+  transition: background-position 320ms cubic-bezier(.22,.61,.36,1);
   background:
     radial-gradient(ellipse at 12% 77%, rgba(107,190,165,.3), transparent 34rem),
     radial-gradient(ellipse at 82% 14%, rgba(160,177,225,.25), transparent 34rem),
     radial-gradient(ellipse at 74% 84%, rgba(231,180,123,.22), transparent 38rem),
     linear-gradient(135deg,#edf3ed 0%,#e9f0ed 48%,#f2eee6 100%);
+  background-position:
+    calc(50% + var(--pointer-x)) calc(50% + var(--pointer-y)),
+    calc(50% + var(--pointer-x-reverse)) calc(50% + var(--pointer-y-reverse)),
+    calc(50% + var(--pointer-x)) calc(50% + var(--pointer-y-reverse)),
+    50% 50%;
 }
 
 .auth-shell::before {
   background: radial-gradient(circle,rgba(124,201,180,.34),transparent 68%);
+  transform: translate3d(var(--pointer-x),var(--pointer-y),0);
+  transition: transform 480ms cubic-bezier(.22,.61,.36,1);
 }
 
 .auth-shell::after {
   background: radial-gradient(circle,rgba(185,200,242,.3),transparent 68%);
+  transform: translate3d(var(--pointer-x-reverse),var(--pointer-y-reverse),0);
+  transition: transform 560ms cubic-bezier(.22,.61,.36,1);
+}
+
+.auth-pointer-glow {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: min(70vw, 900px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle,rgba(111,185,158,.38),rgba(166,177,221,.2) 36%,transparent 72%);
+  filter: blur(24px);
+  opacity: var(--pointer-glow-opacity);
+  pointer-events: none;
+  transform: translate3d(var(--pointer-glow-x),var(--pointer-glow-y),0) translate(-50%,-50%);
+  will-change: transform,opacity;
+  transition: transform 220ms cubic-bezier(.22,.61,.36,1),opacity 260ms ease-out;
 }
 
 .auth-ambient-one {
   background: #9dcfc0;
   opacity: .25;
+  translate: var(--pointer-x) var(--pointer-y);
+  transition: translate 520ms cubic-bezier(.22,.61,.36,1);
 }
 
 .auth-ambient-two {
   background: #e8c99e;
+  translate: var(--pointer-x-reverse) var(--pointer-y-reverse);
+  transition: translate 620ms cubic-bezier(.22,.61,.36,1);
   opacity: .24;
 }
 
@@ -276,5 +314,13 @@
       radial-gradient(ellipse at 10% 12%,rgba(107,190,165,.28),transparent 24rem),
       radial-gradient(ellipse at 90% 92%,rgba(185,177,221,.24),transparent 26rem),
       linear-gradient(135deg,#edf3ed,#f2eee6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell::before,
+  .auth-shell::after {
+    transform: none;
+    transition: none;
   }
 }
