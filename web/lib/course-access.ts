@@ -37,7 +37,10 @@ export async function getPublishedCoursesWithAccess(): Promise<{
   }
 
   const cookieStore = await cookies();
-  const demoSubscribed = cookieStore.get("nxv-subscribed-uid")?.value === user.id;
+  const demoSubscribedIds = (cookieStore.get("nxv-subscribed-uid")?.value ?? "")
+    .split(",")
+    .map((id) => id.trim());
+  const demoSubscribed = demoSubscribedIds.includes(user.id);
 
   const [{ data: courseRows }, { data: enrollmentRows }] = await Promise.all([
     supabase

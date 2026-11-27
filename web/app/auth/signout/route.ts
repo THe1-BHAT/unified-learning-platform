@@ -6,7 +6,5 @@ export async function POST(request: NextRequest) {
     const supabase = await createSupabaseServerClient();
     await supabase.auth.signOut();
   }
-  const response = NextResponse.redirect(new URL("/login", request.url), { status: 303 });
-  response.cookies.delete("nxv-subscribed-uid");
-  return response;
+  return NextResponse.redirect(new URL("/login", request.url), { status: 303 });
 }
