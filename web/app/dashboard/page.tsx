@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "../../lib/supabase/server";
+import { AuthShell } from "../shared/auth-shell";
 import "../login/login.css";
 import { setLeaderboardVisibility } from "./actions";
 
@@ -23,7 +24,7 @@ export default async function DashboardPage() {
   }>;
 
   return (
-    <main className="auth-shell">
+    <AuthShell>
       <section className="form-panel">
         <div className="auth-card">
           <p className="welcome-line">NXGENVARSITY × PRERANA</p>
@@ -49,6 +50,6 @@ export default async function DashboardPage() {
           <form action="/auth/signout" method="post"><button className="primary-submit" type="submit">Sign out</button></form>
         </div>
       </section>
-    </main>
+    </AuthShell>
   );
 }

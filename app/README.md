@@ -24,7 +24,7 @@ Open http://127.0.0.1:4173. Main routes use URL hashes. The demo login is availa
 - Eight curated YouTube resources: existing Harvard CS50 / freeCodeCamp plus Professor Messer, Practical Networking, TCM Security, PortSwigger, and John Savill; practice links, creator materials, and local video notes
 - Browser-local progress and notes, plus Markdown journal and project downloads
 - JSON progress backup and restore (merge or replace) from My Progress, and a mistake-review view that collects incorrectly answered checks
-- Responsive navigation, keyboard support, and reduced-motion styling
+- Responsive navigation, keyboard support, reduced-motion styling, and a smooth cursor-following background glow on the learning site
 
 ## Editing
 

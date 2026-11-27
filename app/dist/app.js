@@ -166,11 +166,28 @@ document.addEventListener('submit',e=>{if(e.target.id==='login-form'){e.preventD
 $('.modal-close').addEventListener('click',()=>$('#modal').close());$('#modal').addEventListener('close',()=>$('#modal-content').innerHTML='');$('#modal').addEventListener('click',e=>{if(e.target===$('#modal')){let r=$('#modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('#modal').close();}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.sidebar')?.classList.contains('open')){$('.sidebar').classList.remove('open');$('.mobile-toggle').setAttribute('aria-expanded','false');$('.mobile-toggle').focus();}});
 document.addEventListener('pointermove',e=>{
- const glass=e.target.closest('.course-dashboard-card,.module,.resource-card,.career,.next-step,.mission,.field-note,.profile');
+ const target=e.target instanceof Element?e.target:null;
+ const main=target?.closest('.main-wrap');
+ if(main){
+  if(e.pointerType==='mouse'&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+   let clip=main.querySelector('.cursor-glow-clip');
+   if(!clip){clip=document.createElement('div');clip.className='cursor-glow-clip';clip.setAttribute('aria-hidden','true');clip.innerHTML='<div class="cursor-glow"></div>';main.prepend(clip);}
+   const glow=clip.querySelector('.cursor-glow'),rect=main.getBoundingClientRect();
+   glow.style.setProperty('--cursor-glow-x',`${(e.clientX-rect.left).toFixed(1)}px`);
+   glow.style.setProperty('--cursor-glow-y',`${(e.clientY-rect.top).toFixed(1)}px`);
+   glow.style.opacity='1';
+  }else main.querySelector('.cursor-glow')?.style.setProperty('opacity','0');
+ }
+ const glass=target?.closest('.course-dashboard-card,.module,.resource-card,.career,.next-step,.mission,.field-note,.profile');
  if(!glass)return;
  const rect=glass.getBoundingClientRect();
  if(!rect)return;
  const x=((e.clientX-rect.left)/rect.width)*100;
  glass.style.setProperty('--glass-x',`${Math.max(0,Math.min(100,x))}%`);
+});
+document.addEventListener('pointerout',e=>{
+ const target=e.target instanceof Element?e.target:null,main=target?.closest('.main-wrap');
+ if(!main||(e.relatedTarget instanceof Node&&main.contains(e.relatedTarget)))return;
+ main.querySelector('.cursor-glow')?.style.setProperty('opacity','0');
 });
 window.addEventListener('hashchange',render);render();
