@@ -72,9 +72,9 @@ export async function GET(
       const accountPill = `<a class="session-account" href="/dashboard" aria-label="Account settings for ${safeName}"><span class="account-avatar" aria-hidden="true">${escapeHtml(initial)}</span><span class="account-copy"><strong>${safeName}</strong><small>Account settings</small></span><span class="account-chevron" aria-hidden="true">↗</span></a>`;
       const signOutForm = `<form action="/auth/signout" method="post" class="session-signout-form"><button type="submit" class="session-account session-signout">Sign out</button></form>`;
 
-      const topRightActions = hasActiveEnrollment
-        ? `<div class="session-actions">${accountPill}${signOutForm}</div>`
-        : `<div class="session-actions"><a class="session-checkout" href="/checkout">Subscribe</a>${accountPill}${signOutForm}</div>`;
+      const subscriptionLink = `<a class="session-checkout" href="/checkout">Subscription</a>`;
+
+      const topRightActions = `<div class="session-actions">${subscriptionLink}${accountPill}${signOutForm}</div>`;
 
       const courseGateScript = hasActiveEnrollment
         ? ""
