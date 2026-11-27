@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev web",
+    "prebuild": "prisma generate",
     "build": "next build web",
     "start": "next start web",
     "lint": "eslint web",

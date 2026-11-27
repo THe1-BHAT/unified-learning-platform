@@ -42,9 +42,10 @@ export async function GET(
   }
 
   try {
-    let body: string | Buffer = await readFile(file);
+    const fileContents = await readFile(file);
+    let body: BodyInit = new Uint8Array(fileContents);
     if (extname(file).toLowerCase() === ".html") {
-      body = body.toString("utf8").replace(
+      body = fileContents.toString("utf8").replace(
         "</head>",
         `<base href="/studio/"><style>
           .profile,.site-footer a[href="#login"]{display:none!important}
