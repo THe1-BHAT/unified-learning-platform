@@ -384,6 +384,35 @@
   text-decoration: none;
 }
 
+.checkout-unlocked-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 560px;
+}
+
+.invoice-download-btn {
+  width: 100%;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(55, 126, 120, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #1f5f59;
+  font: 700 14px Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+
+.invoice-download-btn:hover {
+  background: #ffffff;
+  border-color: #377e78;
+  transform: translateY(-1px);
+}
+
 .subscribed-secondary-link {
   color: #2f746e;
   font: 700 13px Manrope, sans-serif;
