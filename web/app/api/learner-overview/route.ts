@@ -10,19 +10,31 @@ function unavailable() {
   );
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+
+  const showAll = request.nextUrl.searchParams.get("leaderboard") === "all";
+  const requestedOffset = Number(request.nextUrl.searchParams.get("offset") || 0);
+  const leaderboardOffset = showAll && Number.isSafeInteger(requestedOffset)
+    ? Math.min(Math.max(requestedOffset, 0), 10000)
+    : 0;
+
+  const { error: rewardError } = await supabase.rpc("ensure_my_signup_reward");
+  if (rewardError) return unavailable();
 
   const [walletResult, profileResult, statsResult, leaderboardResult] = await Promise.all([
     supabase.from("coin_wallets").select("balance").eq("user_id", user.id).maybeSingle(),
     supabase.from("profiles").select("full_name, show_on_leaderboard").eq("id", user.id).maybeSingle(),
     supabase.from("learner_activity_stats").select("watch_seconds, tests_taken, welcome_seen_at").eq("user_id", user.id).maybeSingle(),
-    supabase.rpc("get_coin_leaderboard", { p_limit: 5, p_offset: 0 }),
+    supabase.rpc("get_coin_leaderboard", {
+      p_limit: showAll ? 100 : 3,
+      p_offset: leaderboardOffset,
+    }),
   ]);
 
-  if (statsResult.error) return unavailable();
+  if (walletResult.error || statsResult.error) return unavailable();
 
   return NextResponse.json({
     user_id: user.id,

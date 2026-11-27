@@ -60,6 +60,7 @@
             <span class="learner-trophy" aria-hidden="true">♛</span>
           </div>
           ${leaderboard}
+          <button type="button" class="learner-leaderboard-open" data-open-leaderboard>View full leaderboard <span aria-hidden="true">↗</span></button>
           <button type="button" class="learner-leaderboard-toggle" data-leaderboard-optin="${data.show_on_leaderboard ? "false" : "true"}">
             ${data.show_on_leaderboard ? "Leave leaderboard" : "Join the leaderboard"}<span aria-hidden="true">→</span>
           </button>
@@ -73,6 +74,79 @@
     if (!hero) return;
     document.querySelector("#learner-overview")?.remove();
     if (latest) hero.insertAdjacentHTML("afterend", overviewMarkup(latest));
+  }
+
+  function renderLeaderboardRows(entries, userId) {
+    return entries.map((entry) => `
+      <li class="${entry.user_id === userId ? "is-you" : ""}">
+        <span class="learner-rank">${escapeHtml(entry.rank)}</span>
+        <span class="learner-leader-name">${escapeHtml(entry.display_name)}</span>
+        <strong>${formatCount(entry.coins)} <small>coins</small></strong>
+      </li>`).join("");
+  }
+
+  async function loadLeaderboardPage(dialog, offset) {
+    const list = dialog.querySelector(".leaderboard-panel-list");
+    const status = dialog.querySelector(".leaderboard-panel-status");
+    const more = dialog.querySelector("[data-leaderboard-more]");
+    more.disabled = true;
+    more.textContent = "Loading…";
+    status.textContent = offset === 0 ? "Loading the leaderboard…" : "";
+    try {
+      const url = new URL(api, window.location.origin);
+      url.searchParams.set("leaderboard", "all");
+      url.searchParams.set("offset", String(offset));
+      const response = await fetch(url, { credentials: "same-origin", cache: "no-store" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Could not load the leaderboard.");
+      const entries = Array.isArray(result.leaderboard) ? result.leaderboard : [];
+      list.insertAdjacentHTML("beforeend", renderLeaderboardRows(entries, result.user_id));
+      status.textContent = offset === 0 && entries.length === 0 ? "No learners have joined the leaderboard yet." : "";
+      more.dataset.leaderboardMore = String(offset + entries.length);
+      more.hidden = entries.length < 100;
+      more.textContent = "Load more learners";
+    } catch (error) {
+      status.textContent = error instanceof Error ? error.message : "Could not load the leaderboard. Try again.";
+      more.textContent = offset === 0 ? "Retry" : "Retry loading more";
+      more.dataset.leaderboardMore = String(offset);
+      more.hidden = false;
+    } finally {
+      more.disabled = false;
+    }
+  }
+
+  function openLeaderboardPanel() {
+    let dialog = document.querySelector("#full-leaderboard-panel");
+    if (dialog) {
+      if (!dialog.open) dialog.showModal();
+      dialog.querySelector(".leaderboard-panel-list").replaceChildren();
+      void loadLeaderboardPage(dialog, 0);
+      void loadOverview();
+      return;
+    }
+    dialog = document.createElement("dialog");
+    dialog.id = "full-leaderboard-panel";
+    dialog.className = "full-leaderboard-dialog";
+    dialog.setAttribute("aria-labelledby", "full-leaderboard-title");
+    dialog.innerHTML = `
+      <section class="full-leaderboard-card">
+        <header class="full-leaderboard-heading">
+          <div><div class="eyebrow">LEARN TOGETHER</div><h2 id="full-leaderboard-title">Coin leaderboard</h2><p>Ranked by total coins earned.</p></div>
+          <button type="button" class="full-leaderboard-close" aria-label="Close leaderboard">×</button>
+        </header>
+        <ol class="learner-leaderboard-list leaderboard-panel-list"></ol>
+        <p class="leaderboard-panel-status" role="status" aria-live="polite"></p>
+        <button type="button" class="learner-leaderboard-open leaderboard-panel-more" data-leaderboard-more="0">Load more learners</button>
+      </section>`;
+    document.body.append(dialog);
+    dialog.querySelector(".full-leaderboard-close").addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+    dialog.querySelector("[data-leaderboard-more]").addEventListener("click", (event) => {
+      const button = event.currentTarget;
+      void loadLeaderboardPage(dialog, Number(button.dataset.leaderboardMore || 0));
+    });
+    dialog.showModal();
+    void loadLeaderboardPage(dialog, 0);
   }
 
   async function postActivity(payload) {
@@ -208,6 +282,10 @@
     const toggle = target?.closest("[data-leaderboard-optin]");
     if (toggle) {
       void setLeaderboardPreference(toggle);
+      return;
+    }
+    if (target?.closest("[data-open-leaderboard]")) {
+      openLeaderboardPanel();
     }
   }, true);
 
