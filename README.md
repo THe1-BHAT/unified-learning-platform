@@ -4,13 +4,15 @@ This repository brings the Cybersecurity and Data Engineering & MLOps learning e
 
 ## Open the website in a browser (no Docker)
 
-The existing learning website is in `app/dist/`. It includes the course pages, lessons, labs, resources, and a login screen. Run a small local web server from the repository root:
+The existing learning website is in `app/dist/`. It includes the course pages, lessons, labs, and resources. Its sign-in route now opens the Next.js login page, so start both servers from the repository root in separate terminals:
 
 ```powershell
+npm install
+npm run dev
 python -m http.server 4173 --bind 127.0.0.1 --directory app/dist
 ```
 
-Open [http://127.0.0.1:4173](http://127.0.0.1:4173). Select the profile at the top right or choose **Demo login** in the footer to open the login page. The static site's login is for previewing the existing site only: `student@nxgen.demo` / `cyber123`. It does not create a real account; its learning progress is stored in that browser.
+Open [http://127.0.0.1:4173](http://127.0.0.1:4173). Selecting **Sign in** forwards to the Next.js login page at [http://localhost:3000/login](http://localhost:3000/login). The Next.js app must be running for sign-in to load.
 
 ## Use real accounts without local Docker
 
