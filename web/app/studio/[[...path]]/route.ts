@@ -46,12 +46,12 @@ export async function GET(
     let body: BodyInit = new Uint8Array(fileContents);
     if (extname(file).toLowerCase() === ".html") {
       body = fileContents.toString("utf8").replace(
-        "</head>",
-        `<base href="/studio/"><style>
+        "<head>",
+        `<head><base href="/studio/"><style>
           .profile,.site-footer a[href="#login"]{display:none!important}
           .session-account{position:fixed;z-index:10000;top:16px;right:20px;padding:9px 13px;border:1px solid #d6e2dd;border-radius:999px;background:#fff;color:#173d48;text-decoration:none;font:600 12px Manrope,Arial,sans-serif;box-shadow:0 3px 14px #173d4817}
           @media(max-width:600px){.session-account{top:14px;right:14px}}
-        </style></head>`,
+        </style>`,
       ).replace(
         "</body>",
         `<a class="session-account" href="/dashboard">Account &amp; sign out</a></body>`,
