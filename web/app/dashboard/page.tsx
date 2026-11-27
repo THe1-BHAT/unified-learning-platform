@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { formatInrFromPaise, getPublishedCoursesWithAccess } from "../../lib/course-access";
 import { createSupabaseServerClient } from "../../lib/supabase/server";
 import { AuthShell } from "../shared/auth-shell";
 import "../login/login.css";
@@ -12,9 +13,10 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const { data: wallet } = await supabase.from("coin_wallets").select("balance").eq("user_id", user.id).maybeSingle();
-  const [{ data: profile }, { data: leaderboard }] = await Promise.all([
+  const [{ data: profile }, { data: leaderboard }, { courses }] = await Promise.all([
     supabase.from("profiles").select("show_on_leaderboard").eq("id", user.id).maybeSingle(),
     supabase.rpc("get_coin_leaderboard", { p_limit: 10, p_offset: 0 }),
+    getPublishedCoursesWithAccess(),
   ]);
   const leaderboardEntries = (leaderboard ?? []) as Array<{
     user_id: string;
@@ -23,14 +25,58 @@ export default async function DashboardPage() {
     rank: number;
   }>;
 
+  const isSubscribed = courses.length > 0 && courses.some((c) => c.enrolled);
+
   return (
     <AuthShell>
       <section className="form-panel">
         <div className="auth-card">
           <p className="welcome-line">NXGENVARSITY × PRERANA</p>
           <h1 className="dashboard-title">Welcome{user.user_metadata.full_name ? `, ${user.user_metadata.full_name}` : ""}.</h1>
-          <p className="card-subtitle">You’re signed in as {user.email}. Your Cybersecurity and Data Engineering &amp; MLOps learning studio is ready.</p>
-          <a className="primary-submit" href="/studio/">Open the learning studio <span aria-hidden="true">→</span></a>
+          <p className="card-subtitle">
+            You’re signed in as {user.email}.{" "}
+            {isSubscribed
+              ? "Your Cybersecurity and Data Engineering & MLOps learning studio is unlocked."
+              : "Subscribe to unlock all courses."}
+          </p>
+          {isSubscribed ? (
+            <a className="primary-submit" href="/studio/">Open the learning studio <span aria-hidden="true">→</span></a>
+          ) : (
+            <a className="primary-submit" href="/checkout">Subscribe <span aria-hidden="true">→</span></a>
+          )}
+          <section className="leaderboard-panel" style={{ marginTop: "18px", marginBottom: "0" }} aria-labelledby="courses-heading">
+            <div className="leaderboard-heading-row">
+              <div>
+                <p className="welcome-line">All-access pass</p>
+                <h2 id="courses-heading">
+                  {isSubscribed
+                    ? "Subscribed — Active"
+                    : `${formatInrFromPaise(250000)} one-time`}
+                </h2>
+              </div>
+              {isSubscribed ? (
+                <span className="leaderboard-badge">ACTIVE</span>
+              ) : (
+                <a className="leaderboard-badge" style={{ textDecoration: "none" }} href="/checkout">
+                  SUBSCRIBE
+                </a>
+              )}
+            </div>
+            <ol className="leaderboard-list" style={{ marginTop: "10px" }}>
+              {courses.map((course) => (
+                <li key={course.id} style={{ gridTemplateColumns: "1fr auto" }}>
+                  <span className="leaderboard-name">{course.title}</span>
+                  {isSubscribed ? (
+                    <strong>Unlocked</strong>
+                  ) : (
+                    <a href="/checkout" style={{ textDecoration: "none", color: "inherit" }}>
+                      <strong>Locked</strong>
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
           <div className="wallet-summary">
             <span className="wallet-coin" aria-hidden="true">✦</span>
             <div>
