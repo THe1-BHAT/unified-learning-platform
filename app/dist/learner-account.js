@@ -72,8 +72,19 @@
   function renderOverview() {
     const hero = document.querySelector(".unified-hero");
     if (!hero) return;
+    document.querySelector("#learner-overview-error")?.remove();
     document.querySelector("#learner-overview")?.remove();
     if (latest) hero.insertAdjacentHTML("afterend", overviewMarkup(latest));
+  }
+
+  function renderOverviewError(status) {
+    const hero = document.querySelector(".unified-hero");
+    if (!hero || document.querySelector("#learner-overview-error")) return;
+    hero.insertAdjacentHTML("afterend", `
+      <section class="learner-overview-error" id="learner-overview-error" role="status">
+        <span>We couldn’t load your coins and leaderboard right now (${escapeHtml(status)}).</span>
+        <button type="button" data-overview-retry>Try again</button>
+      </section>`);
   }
 
   function renderLeaderboardRows(entries, userId) {
@@ -174,7 +185,10 @@
     requestPending = true;
     try {
       const response = await fetch(api, { credentials: "same-origin", cache: "no-store" });
-      if (!response.ok) return;
+      if (!response.ok) {
+        renderOverviewError(response.status);
+        return;
+      }
       latest = await response.json();
       renderOverview();
       if (!latest.welcome_seen) {
@@ -286,6 +300,11 @@
     }
     if (target?.closest("[data-open-leaderboard]")) {
       openLeaderboardPanel();
+      return;
+    }
+    if (target?.closest("[data-overview-retry]")) {
+      document.querySelector("#learner-overview-error")?.remove();
+      void loadOverview();
     }
   }, true);
 

@@ -1707,6 +1707,8 @@ body::before {
   gap: 16px;
   margin: 18px 0 24px;
 }
+.learner-overview-error { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 18px 0 24px; padding: 16px 19px; border: 1px solid #f0d5cb; border-radius: 14px; background: #fffaf6; color: #77584c; font-size: 12px; }
+.learner-overview-error button { flex: 0 0 auto; padding: 8px 12px; border: 1px solid #ead7c8; border-radius: 9px; background: white; color: #526e68; cursor: pointer; font: 700 11px Manrope, sans-serif; }
 .learner-overview-main, .learner-leaderboard {
   min-width: 0;
   border: 1px solid rgba(33, 73, 77, .09);

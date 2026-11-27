@@ -63,7 +63,7 @@ export async function GET(
         </style>`,
       ).replace(
         "</head>",
-        `<script defer src="/studio/learner-account.js?v=1"></script></head>`,
+        `<script defer src="/studio/learner-account.js?v=2"></script></head>`,
       ).replace(
         "</body>",
         `<a class="session-account" href="/dashboard" aria-label="Account settings for ${safeName}"><span class="account-avatar" aria-hidden="true">${escapeHtml(initial)}</span><span class="account-copy"><strong>${safeName}</strong><small>Account settings</small></span><span class="account-chevron" aria-hidden="true">↗</span></a></body>`,
