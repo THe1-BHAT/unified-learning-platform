@@ -25,6 +25,7 @@ export async function GET() {
   if (statsResult.error) return unavailable();
 
   return NextResponse.json({
+    user_id: user.id,
     name: profileResult.data?.full_name || user.user_metadata.full_name || user.email?.split("@")[0] || "Learner",
     balance: Number(walletResult.data?.balance ?? 0),
     watch_seconds: Number(statsResult.data?.watch_seconds ?? 0),

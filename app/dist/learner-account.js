@@ -2,6 +2,7 @@
   "use strict";
 
   const api = "/api/learner-overview";
+  const welcomeKey = (userId) => `nxv-welcome-seen:${userId}`;
   let latest = null;
   let requestPending = false;
 
@@ -102,7 +103,16 @@
       if (!response.ok) return;
       latest = await response.json();
       renderOverview();
-      if (!latest.welcome_seen) showWelcome();
+      if (!latest.welcome_seen) {
+        let seenLocally = false;
+        try { seenLocally = localStorage.getItem(welcomeKey(latest.user_id)) === "1"; } catch {}
+        if (seenLocally) {
+          latest.welcome_seen = true;
+          void postActivity({ mark_welcome_seen: true });
+        } else {
+          showWelcome();
+        }
+      }
     } catch {
       // The rest of the learning studio remains usable if overview data is unavailable.
     } finally {
@@ -154,6 +164,13 @@
 
   function showWelcome() {
     if (document.querySelector("#welcome-bonus")) return;
+    if (latest) {
+      latest.welcome_seen = true;
+      try { localStorage.setItem(welcomeKey(latest.user_id), "1"); } catch {}
+      // Persist as soon as the welcome appears so a refresh or early tab close
+      // cannot make the joining message show again.
+      void postActivity({ mark_welcome_seen: true });
+    }
     const firstName = String(latest?.name || "Learner").trim().split(/\s+/)[0];
     const dialog = document.createElement("dialog");
     dialog.id = "welcome-bonus";
@@ -174,10 +191,6 @@
     const close = () => { if (dialog.open) dialog.close(); };
     dialog.querySelector(".welcome-bonus-close").addEventListener("click", close);
     dialog.querySelector(".welcome-bonus-continue").addEventListener("click", close);
-    dialog.addEventListener("close", () => {
-      if (latest) latest.welcome_seen = true;
-      void postActivity({ mark_welcome_seen: true });
-    }, { once: true });
     dialog.showModal();
   }
 
