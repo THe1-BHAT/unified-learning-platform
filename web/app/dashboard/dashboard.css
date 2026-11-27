@@ -1,0 +1,183 @@
+.dashboard-panel {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 100%;
+  max-width: 640px;
+}
+
+.dashboard-card {
+  padding: clamp(28px, 3.4vw, 42px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 24px 64px rgba(23, 61, 72, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.dashboard-card .welcome-line {
+  margin: 0 0 8px;
+  color: #377e78;
+  font: 800 11px Manrope, sans-serif;
+  letter-spacing: 0.14em;
+}
+
+.dashboard-card .dashboard-title {
+  margin: 0;
+  color: #173d48;
+  font: 800 clamp(28px, 3.2vw, 38px)/1.15 Manrope, sans-serif;
+  letter-spacing: -0.04em;
+}
+
+.dashboard-card .card-subtitle {
+  margin: 10px 0 22px;
+  color: #5c737a;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.dashboard-primary-cta {
+  text-decoration: none;
+  background: linear-gradient(135deg, #2d746d 0%, #1d5752 100%);
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(29, 87, 82, 0.24);
+}
+
+.dashboard-primary-cta:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.dashboard-section-card {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid rgba(55, 126, 120, 0.16);
+  border-radius: 20px;
+  background: rgba(248, 251, 249, 0.9);
+}
+
+.dashboard-section-card .leaderboard-heading-row h2 {
+  margin: 0;
+  color: #173d48;
+  font: 800 19px/1.25 Manrope, sans-serif;
+}
+
+.dashboard-section-card .leaderboard-badge {
+  padding: 6px 12px;
+  border: 1px solid rgba(55, 126, 120, 0.28);
+  border-radius: 999px;
+  background: rgba(55, 126, 120, 0.1);
+  color: #1f5f59;
+  font: 800 10px Manrope, sans-serif;
+  letter-spacing: 0.1em;
+}
+
+.dashboard-section-card .leaderboard-list {
+  margin-top: 12px;
+}
+
+.dashboard-section-card .leaderboard-list li {
+  padding: 11px 8px;
+  border-bottom: 1px solid rgba(23, 61, 72, 0.08);
+  color: #1e3b44;
+  font-size: 13px;
+}
+
+.dashboard-section-card .leaderboard-list li:last-child {
+  border-bottom: 0;
+}
+
+.dashboard-section-card .leaderboard-rank {
+  color: #5c737a;
+  font-weight: 800;
+}
+
+.dashboard-section-card .leaderboard-list li:nth-child(-n+3) .leaderboard-rank {
+  color: #b57b14;
+}
+
+.dashboard-section-card .leaderboard-list strong {
+  color: #1f5f59;
+  font-weight: 800;
+}
+
+.dashboard-section-card .leaderboard-list small {
+  color: #6b8087;
+}
+
+.dashboard-wallet-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 0;
+  padding: 18px 20px;
+  border: 1px solid rgba(214, 165, 65, 0.35);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #fffbf2 0%, #fcf2dc 100%);
+  box-shadow: none;
+}
+
+.dashboard-wallet-card .wallet-coin {
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(135deg, #f7cf68, #e3a233);
+  color: #4f3506;
+  box-shadow: 0 6px 16px rgba(227, 162, 51, 0.28);
+}
+
+.dashboard-wallet-card strong {
+  color: #78500a;
+  font: 800 20px Manrope, sans-serif;
+}
+
+.dashboard-wallet-card div > span {
+  color: #6f6246;
+  font-size: 12px;
+}
+
+.dashboard-section-card .leaderboard-optin {
+  margin: 14px 0;
+  padding: 11px 0;
+  border-top: 1px solid rgba(23, 61, 72, 0.08);
+  border-bottom: 1px solid rgba(23, 61, 72, 0.08);
+  color: #5c737a;
+  font-size: 12px;
+}
+
+.dashboard-section-card .leaderboard-optin button {
+  padding: 7px 13px;
+  border: 1px solid rgba(55, 126, 120, 0.35);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1f5f59;
+  font: 700 11px Manrope, sans-serif;
+}
+
+.dashboard-section-card .leaderboard-optin button:hover {
+  background: rgba(55, 126, 120, 0.1);
+}
+
+.dashboard-section-card .leaderboard-empty {
+  color: #5c737a;
+  font-size: 12px;
+}
+
+.dashboard-signout-btn {
+  width: 100%;
+  height: 48px;
+  margin-top: 20px;
+  border: 1px solid rgba(23, 61, 72, 0.18);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #173d48;
+  font: 700 14px Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.16s, border-color 0.16s, transform 0.16s;
+}
+
+.dashboard-signout-btn:hover {
+  background: #f4f8f6;
+  border-color: #377e78;
+  transform: translateY(-1px);
+}
