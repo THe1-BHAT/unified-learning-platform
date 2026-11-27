@@ -40,7 +40,10 @@ export async function GET(
     return NextResponse.redirect(login);
   }
 
-  const hasDemoCookie = request.cookies.get("nxv-subscribed-uid")?.value === user.id;
+  const demoSubscribedIds = (request.cookies.get("nxv-subscribed-uid")?.value ?? "")
+    .split(",")
+    .map((id) => id.trim());
+  const hasDemoCookie = demoSubscribedIds.includes(user.id);
   let hasActiveEnrollment = hasDemoCookie;
   if (!hasActiveEnrollment) {
     const { data: activeRows } = await supabase
