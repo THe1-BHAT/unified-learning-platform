@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowserClient, setRememberPreference } from "../../lib/supabase/browser";
 import { AuthShell } from "../shared/auth-shell";
@@ -38,7 +37,6 @@ function safeNextPath(value: string | null) {
 }
 
 export default function AuthExperience() {
-  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("login");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -127,8 +125,8 @@ export default function AuthExperience() {
         });
         if (error) throw error;
         if (data.session) {
-          router.replace(nextPath);
-          router.refresh();
+          window.location.assign(nextPath);
+          return;
         } else {
           setFeedback({ kind: "success", text: "Account created. Check your email to confirm your address, then sign in." });
           setMode("login");
@@ -136,8 +134,8 @@ export default function AuthExperience() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        router.replace(nextPath);
-        router.refresh();
+        window.location.assign(nextPath);
+        return;
       }
     } catch (error) {
       const code = typeof error === "object" && error !== null && "code" in error ? String(error.code) : "";
