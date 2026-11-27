@@ -316,8 +316,8 @@ export default function CheckoutExperience({
     <AuthShell>
       <section className="brand-panel checkout-summary-panel" aria-label="Order summary">
         <div className="brand-topline">
-          <a className="checkout-back-link" href="/dashboard">
-            <span aria-hidden="true">←</span> Back to dashboard
+          <a className="checkout-back-link" href="/studio/">
+            <span aria-hidden="true">←</span> Back
           </a>
         </div>
 
@@ -398,8 +398,8 @@ export default function CheckoutExperience({
                 <a className="invoice-download-btn" style={{ textDecoration: "none" }} href="/studio/">
                   Open Learning Studio <span aria-hidden="true">→</span>
                 </a>
-                <a className="subscribed-secondary-link" href="/dashboard">
-                  Go to Dashboard
+                <a className="subscribed-secondary-link" href="/studio/">
+                  Back to Main Page
                 </a>
               </div>
             </div>
@@ -596,8 +596,8 @@ export default function CheckoutExperience({
               <button type="button" className="invoice-download-btn" onClick={handleDownloadInvoice}>
                 Download Invoice ↓
               </button>
-              <a className="subscribed-secondary-link" href="/dashboard">
-                Go to Dashboard
+              <a className="subscribed-secondary-link" href="/studio/">
+                Back to Main Page
               </a>
             </div>
           </div>
