@@ -5,7 +5,9 @@ const elements=new Map();
 const element=()=>({innerHTML:'',textContent:'',dataset:{},value:'3',classList:{add(){},remove(){},toggle(){}},addEventListener(){},close(){},focus(){},querySelectorAll(){return []},scrollIntoView(){}});
 const get=key=>{if(!elements.has(key))elements.set(key,element());return elements.get(key);};
 let hash='#home';
-const context={document:{querySelector:get,getElementById:get,querySelectorAll:()=>[],addEventListener(){},body:{append(){}}},window:{scrollTo(){},addEventListener(){}},location:{get hash(){return hash}},localStorage:{getItem(){return null},setItem(){}},setTimeout(){return 0},clearTimeout(){},console,Blob,URL};
+let redirectedTo='';
+const location={hostname:'localhost',origin:'http://localhost:4173',replace(url){redirectedTo=url;},get hash(){return hash;}};
+const context={document:{querySelector:get,getElementById:get,querySelectorAll:()=>[],addEventListener(){},body:{append(){}}},window:{scrollTo(){},addEventListener(){}},location,localStorage:{getItem(){return null},setItem(){}},setTimeout(){return 0},clearTimeout(){},console,Blob,URL};
 vm.createContext(context);
 for(const file of ['curriculum.js','extension.js','reference-library.js','coverage-data.js','expansion-views.js','pdf-guides.js','learning-flow.js','industry-videos.js','data-mlops-content.js','app.js'])vm.runInContext(fs.readFileSync(`dist/${file}`,'utf8'),context,{filename:file});
 vm.runInContext('this.data={modules,resources,roles,projects,R,atlas,coverageRows,challenges,glossary,pdfGuides,learningPhases,guidedModuleIds,videos};this.renderPage=render;this.throttle=throttleDecisions;this.terminal=runTerminal',context);
@@ -24,6 +26,14 @@ for(const row of coverageRows)for(const [href]of row.links)assert(href.startsWit
 assert.equal(coverageRows.filter(r=>r.source==='Udemy').length,16);assert.equal(new Set(coverageRows.filter(r=>r.source==='CyberLab').map(r=>r.area)).size,8);
 const routes=['curriculum','syllabus','checks',...learningPhases.map(p=>'curriculum/'+p.id),...modules.map(m=>'checks/'+m.id),'home','login','library','careers','labs','labs/triage','labs/pipeline','videos','progress','roadmap','sources','coverage','field','field/terminal','field/scan','field/throttle','field/glossary',...modules.flatMap(m=>m.lessons.map((l,i)=>`lesson/${m.id}/${i}`)),...roles.map(r=>'career/'+r.id),...projects.map(p=>'project/'+p.id),...atlas.map(c=>`reference/${c.kind}/${c.id}`),...new Set(atlas.map(c=>'reference/'+c.kind))];
 for(const route of routes){hash='#'+route;if(route.startsWith('reference'))get('#atlas-grid').dataset.kind=route.split('/')[1]||'toolkit';context.renderPage();const html=get('#app').innerHTML;assert(html.includes('id="main"'),`No main content for ${route}`);assert(!html.includes('undefined'),`Undefined content in ${route}`);for(const match of html.matchAll(/href="(#[^\"]+)"/g)){if(match[1]==='#main')continue;assert(validRoute(match[1]),`Dangling link ${match[1]} on ${route}`);}}
+hash='#login';context.renderPage();
+assert.equal(redirectedTo,'http://localhost:3000/login','Local static sign-in forwards to Next.js');
+assert(get('#app').innerHTML.includes('NXGENVARSITY SIGN IN'),'Static sign-in no longer renders the demo login');
+assert(!get('#app').innerHTML.includes('student@nxgen.demo'),'Static demo credentials are no longer rendered');
+location.hostname='platform.example';
+location.origin='https://platform.example';
+hash='#login';context.renderPage();
+assert.equal(redirectedTo,'https://platform.example/login','Hosted sign-in uses the same-origin Next.js route');
 assert.equal(learningPhases.length,10);
 assert.equal(guidedModuleIds.length,30);
 assert.equal(new Set(guidedModuleIds).size,30);

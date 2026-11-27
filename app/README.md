@@ -4,13 +4,20 @@ A unified static learning portal for Cybersecurity and Data Engineering & MLOps.
 
 ## Preview
 
-From this directory run:
+Start the Next.js app from the repository root in one terminal:
+
+```sh
+npm install
+npm run dev
+```
+
+In another terminal, run the static preview:
 
 ```sh
 python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
 ```
 
-Open http://127.0.0.1:4173. Main routes use URL hashes. The demo login is available at `#login`: `student@nxgen.demo` / `cyber123`; guest entry is also supported.
+Open http://127.0.0.1:4173. Main routes use URL hashes. Selecting `#login` forwards to the Next.js sign-in page at http://localhost:3000/login; the Next.js server must be running.
 
 ## Included
 
@@ -44,9 +51,9 @@ When editing JS or CSS, update query versions in index.html for cache refresh. K
 
 ## Privacy and limitations
 
-Demo login does not authenticate users. No password is stored or transmitted. A learner's state is saved under `cyber-studio-v1` in that browser's localStorage, shared between guest and demo profiles in the same browser. It does not sync across devices and does not support multiple independent accounts. Never store secrets or personal information in notes. Export a Markdown journal for a readable copy; it is not an importable backup. Use the JSON backup on My Progress to move or restore progress — it is previewed before anything changes and contains no password.
+The static learning preview does not authenticate users. Sign-in is handled by the Next.js app and Supabase. Learning progress and notes remain in the current browser's local storage and do not sync across devices. Never store secrets or personal information in notes. Export a Markdown journal for a readable copy; it is not an importable backup. Use the JSON backup on My Progress to move or restore progress — it is previewed before anything changes and contains no password.
 
-There is no live news feed. Editorial snapshot: 2 November 2026. Linked platforms may require separate accounts and have independent terms. Embeds load on user interaction. Google Fonts loads typography. Private Sites hosting access is independent from the demo login.
+There is no live news feed. Editorial snapshot: 2 November 2026. Linked platforms may require separate accounts and have independent terms. Embeds load on user interaction. Google Fonts loads typography. Private Sites hosting access is separate from application authentication.
 
 ## Credits
 
@@ -60,7 +67,7 @@ Full image prompt:
 
 ## Validation
 
-JavaScript syntax and content reference integrity checked. Browser QA covered quiz answers, notes and completion across reload, bookmarks and filtering, career-to-project navigation, project checklists, invalid and valid demo login, and a 390px iframe rendering of responsive navigation. YouTube playback availability is governed by YouTube and may depend on browser/network settings.
+JavaScript syntax and content reference integrity checked. Browser QA covered quiz answers, notes and completion across reload, bookmarks and filtering, career-to-project navigation, project checklists, the sign-in redirect to the Next.js app, and a 390px iframe rendering of responsive navigation. YouTube playback availability is governed by YouTube and may depend on browser/network settings.
 
 ## Public-reference audit
 
