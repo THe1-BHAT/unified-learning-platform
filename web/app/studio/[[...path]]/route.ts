@@ -5,6 +5,12 @@ import { createSupabaseServerClient } from "../../../lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  })[character] ?? character);
+}
+
 const contentTypes: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -45,6 +51,9 @@ export async function GET(
     const fileContents = await readFile(file);
     let body: BodyInit = new Uint8Array(fileContents);
     if (extname(file).toLowerCase() === ".html") {
+      const displayName = String(user.user_metadata.full_name || user.email?.split("@")[0] || "Learner").trim();
+      const initial = Array.from(displayName)[0]?.toLocaleUpperCase() || "L";
+      const safeName = escapeHtml(displayName);
       body = fileContents.toString("utf8").replace(
         "<head>",
         `<head><base href="/studio/"><style>
@@ -53,8 +62,11 @@ export async function GET(
           @media(max-width:600px){.session-account{top:14px;right:14px}}
         </style>`,
       ).replace(
+        "</head>",
+        `<script defer src="/studio/learner-account.js?v=1"></script></head>`,
+      ).replace(
         "</body>",
-        `<a class="session-account" href="/dashboard">Account &amp; sign out</a></body>`,
+        `<a class="session-account" href="/dashboard" aria-label="Account settings for ${safeName}"><span class="account-avatar" aria-hidden="true">${escapeHtml(initial)}</span><span class="account-copy"><strong>${safeName}</strong><small>Account settings</small></span><span class="account-chevron" aria-hidden="true">↗</span></a></body>`,
       );
     }
     return new NextResponse(body, {
