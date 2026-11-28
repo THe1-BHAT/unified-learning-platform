@@ -21,7 +21,7 @@ npm install
 Copy-Item .env.example web/.env.local
 ```
 
-Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `web/.env.local` using the hosted project's browser-safe API URL and anon/publishable key, then run `npm run dev` and open [http://localhost:3000/login](http://localhost:3000/login). Apply the repository migrations to that Supabase project before using account-backed features; see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md). Keep `.env.local` private; it is ignored by Git. Google and other OAuth buttons remain unavailable until that provider is enabled in Supabase Auth, its redirect URL is configured, and its ID is added to `NEXT_PUBLIC_SUPABASE_AUTH_PROVIDERS`.
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `web/.env.local` using the hosted project's browser-safe API URL and anon/publishable key, then run `npm run dev` and open [http://localhost:3000/](http://localhost:3000/) for the introduction page. Choose **Get started** to sign up or **Log in** to access an account; the sign-in page is also available at [http://localhost:3000/login](http://localhost:3000/login). Apply the repository migrations to that Supabase project before using account-backed features; see [`docs/SUPABASE-IMPLEMENTATION.md`](docs/SUPABASE-IMPLEMENTATION.md). Keep `.env.local` private; it is ignored by Git. Google and other OAuth buttons remain unavailable until that provider is enabled in Supabase Auth, its redirect URL is configured, and its ID is added to `NEXT_PUBLIC_SUPABASE_AUTH_PROVIDERS`.
 
 ## Repository structure
 

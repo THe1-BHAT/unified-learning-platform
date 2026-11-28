@@ -50,6 +50,7 @@ export default function AuthExperience() {
     const timeout = window.setTimeout(() => {
       const query = new URLSearchParams(window.location.search);
       setNextPath(safeNextPath(query.get("next")));
+      if (query.get("mode") === "signup") setMode("signup");
       if (query.get("auth") === "error") {
         setFeedback({ kind: "error", text: "We couldn’t complete sign-in. Please try again." });
       } else if (query.get("confirmed") === "1") {
