@@ -1,5 +1,5 @@
 # NxGenVarsity Unified Learning Platform
-https://unified-learning-platform.onrender.com/(link)
+https://unified-learning-platform.onrender.com..
 This repository brings the Cybersecurity and Data Engineering & MLOps learning experiences together in one browser-based platform. The project blueprint and planning documents are in [`docs/README.md`](docs/README.md).
 
 ## Open the website in a browser (no Docker)
