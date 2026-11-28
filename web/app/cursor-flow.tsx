@@ -62,7 +62,7 @@ export default function CursorFlow() {
       while (points[0] && points[0].age > 82) points.shift();
 
       if (points.length > 2) {
-        const colors = ["55,143,129", "117,151,190", "194,151,113"];
+        const colors = ["48,166,145", "139,105,222", "232,157,91"];
         for (let strand = 0; strand < colors.length; strand += 1) {
           context.beginPath();
           for (let i = 0; i < points.length; i += 1) {
@@ -74,8 +74,8 @@ export default function CursorFlow() {
             if (i === 0) context.moveTo(x, y);
             else context.lineTo(x, y);
             if (i === points.length - 1) {
-              context.strokeStyle = `rgba(${colors[strand]},${0.22 * fade})`;
-              context.lineWidth = 1.1 + point.force * 1.6;
+              context.strokeStyle = `rgba(${colors[strand]},${0.34 * fade})`;
+              context.lineWidth = 1.25 + point.force * 2;
               context.lineCap = "round";
               context.lineJoin = "round";
               context.stroke();
@@ -85,8 +85,9 @@ export default function CursorFlow() {
 
         const last = points[points.length - 1];
         const glow = context.createRadialGradient(last.x, last.y, 0, last.x, last.y, 34);
-        glow.addColorStop(0, "rgba(82,157,140,0.12)");
-        glow.addColorStop(1, "rgba(82,157,140,0)");
+        glow.addColorStop(0, "rgba(78,173,154,0.2)");
+        glow.addColorStop(0.55, "rgba(140,105,222,0.08)");
+        glow.addColorStop(1, "rgba(140,105,222,0)");
         context.fillStyle = glow;
         context.beginPath();
         context.arc(last.x, last.y, 34, 0, Math.PI * 2);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import LearningIllustration from "./login/learning-illustration";
@@ -13,14 +14,24 @@ const highlights = [
 ];
 
 export default function IntroExperience() {
+  const router = useRouter();
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [activeNav, setActiveNav] = useState<"about" | "login" | null>(null);
 
   function toggleAbout() {
     const opening = !aboutOpen;
     setAboutOpen(opening);
+    setActiveNav(opening ? "about" : null);
     if (opening) {
       window.setTimeout(() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
     }
+  }
+
+  function handleLoginClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    setActiveNav("login");
+    window.setTimeout(() => router.push("/login"), 240);
   }
 
   return (
@@ -33,10 +44,10 @@ export default function IntroExperience() {
           <Image src="/brand/nxgenvarsity-logo.png" alt="NxGenVarsity" width={176} height={61} priority />
           <span aria-hidden="true">×</span><strong>PRERANA</strong>
         </Link>
-        <nav className={`intro-nav${aboutOpen ? " is-about-open" : ""}`} aria-label="Main navigation">
+        <nav className={`intro-nav${aboutOpen ? " is-about-open" : ""}${activeNav === "login" ? " is-login-selected" : ""}`} aria-label="Main navigation">
           <span className="intro-nav-highlight" aria-hidden="true" />
           <button className="intro-about-button" type="button" aria-controls="about" aria-expanded={aboutOpen} onClick={toggleAbout}>About</button>
-          <Link className="intro-login" href="/login">Log in</Link>
+          <Link className="intro-login" href="/login" onClick={handleLoginClick}>Log in</Link>
         </nav>
       </header>
 
