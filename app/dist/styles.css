@@ -859,6 +859,20 @@ select,
   border-color: rgba(55, 126, 120, 0.45) !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
 }
+.answer.correct,
+.answer.correct:hover {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #14532d !important;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.16) !important;
+}
+.answer.incorrect,
+.answer.incorrect:hover {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #7f1d1d !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.14) !important;
+}
 .note-area {
   border-radius: 16px !important;
   background: rgba(250, 251, 247, 0.75) !important;
